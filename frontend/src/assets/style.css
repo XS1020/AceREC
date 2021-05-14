@@ -1,0 +1,169 @@
+@import "raleway.css";
+body {
+    font-family: 'Raleway';
+    background-color: #f3f3f3;
+    margin: 0px;
+}
+.nav-bar {
+    position: fixed;
+    top: 0;
+    width: 95%;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    padding: 20px 40px;
+
+}
+.browse-cate-title {
+    color: #989898;
+    font-size: 16px;
+    display: block;
+    width: 190px;
+    padding: 0 15px;
+}
+.browse-cate-title:hover {
+    cursor: pointer;
+}
+.browse-cate-title > i {
+    margin-left: 8px;
+    font-size: 12px;
+}
+.input-wrapper {
+    background-color: transparent;
+    padding: 10px;
+    color: #989898;
+}
+.browse-menu {
+    list-style: none;
+    position: absolute;
+    background-color: #ffffff;
+    padding: 0;
+    border-radius: 5px;
+    width: 200px;
+    margin-top: 40px;
+    margin-left: -15px;
+    margin-right: -15px;
+}
+.show-menu:before, .sign-up-form:after {
+    position: absolute;
+    content: "";
+    height: 12px;
+    z-index: -1;
+    width: 12px;
+    background-color: #ffffff;
+    right: 20px;
+    top: -7px;
+    transform: rotate(45deg);
+}
+.browse-menu li {
+    height: 0;
+    overflow: hidden;
+    transition: all 0.3s;
+    box-sizing: border-box;
+}
+.browse-menu li.show {
+    padding: 10px 20px;
+    height: auto;
+}
+.browse-menu li.active {
+    background-color: mediumpurple;
+    color: #f7f7f7 !important;
+}
+.browse-menu li:active {
+    color: #f7f7f7 !important;
+    background-color: rebeccapurple;
+}
+.browse-menu li:hover {
+    color: rebeccapurple;
+}
+.browse-menu li:nth-child(1) {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+.browse-menu li:nth-last-child(1) {
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+.browse-menu li>i {
+    margin-right: 10px;
+}
+.left-container, .right-container {
+    display: flex;
+    align-items: center;
+    flex-flow: row nowrap;
+}
+.input-wrapper .input-box {
+    outline: none;
+    border: none;
+    font-size: 14px;
+    font-weight: 400;
+    color: #989898;
+    width: 400px;
+}
+.input-wrapper .input-box::-webkit-input-placeholder {
+    color: #989898;
+}
+.input-wrapper >i {
+    margin-right: 10px;
+}
+.user-info .avatar {
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    cursor: pointer;
+}
+.user-info .user-name {
+    display: block;
+    margin-left: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+button {
+    border-radius: 5px;
+    outline: none;
+    border: none;
+    padding: 10px 20px;
+    background-color: mediumpurple;
+    color: #f7f7f7;
+    margin-left: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+button:hover {
+    background-color: rebeccapurple;
+}
+.sign-in > span {
+    cursor: pointer;
+}
+.sign-in > span:hover {
+    color: rebeccapurple;
+}
+.sign-up-form {
+    position: absolute;
+    background-color: #ffffff;
+    margin-top: 30px;
+    border-radius: 5px;
+    right: 50px;
+    transition: all 0.3s;
+    height: 0;
+    overflow: hidden;
+}
+.show-form {
+    height: auto !important;
+    padding: 20px;
+    padding-top: 10px;
+}
+.sign-up-form > h2 {
+    font-size: 24px;
+    margin: 10px 0;
+}
+.sign-up-form > div {
+    margin: 20px;
+}
+.sign-up-form > i {
+    float: left;
+    font-size: 12px;
+    color: silver;
+}
