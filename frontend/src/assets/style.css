@@ -2,7 +2,7 @@
 body {
     font-family: 'Raleway';
     background-color: #f3f3f3;
-    margin: 0px;
+    margin: 0;
 }
 .nav-bar {
     position: fixed;
@@ -46,7 +46,7 @@ body {
     margin-left: -15px;
     margin-right: -15px;
 }
-.show-menu:before, .sign-up-form:after {
+.show-menu:before, .show-form:after {
     position: absolute;
     content: "";
     height: 12px;
@@ -148,21 +148,20 @@ button:hover {
     right: 50px;
     transition: all 0.3s;
     height: 0;
-    overflow: hidden;
 }
 .show-form {
     height: auto !important;
     padding: 20px;
     padding-top: 10px;
 }
-.sign-up-form > h2 {
+.show-form .form-wrapper > h2 {
     font-size: 24px;
     margin: 10px 0;
 }
-.sign-up-form > div {
+.show-form .form-wrapper> div {
     margin: 20px;
 }
-.sign-up-form > i {
+.show-form .form-wrapper > i {
     float: left;
     font-size: 12px;
     color: silver;
