@@ -19,7 +19,7 @@ export default {
   name: 'Home',
   components: {
     AuthorInfo: () => import("@/components/Home/AuthorInfo"),
-    Carousel: () =>  import("@/components/Carousel"),
+    Carousel: () =>  import("@/components/Home/Carousel"),
   }
 }
 </script>

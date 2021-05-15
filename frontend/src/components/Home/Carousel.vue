@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import Billboard from "@/components/Billboard";
+import Billboard from "@/components/Home/Billboard";
 export default {
   name: "Carousel",
   components: {Billboard},

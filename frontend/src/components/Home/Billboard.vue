@@ -27,7 +27,7 @@ export default {
       views: "1,322",
       author: "Nishino Nanase",
       title: "BIG MAGIC: Creative Living",
-      coverSrc: require("../assets/cover.jpg")
+      coverSrc: require("../../assets/cover.jpg")
     }
   }
 }
