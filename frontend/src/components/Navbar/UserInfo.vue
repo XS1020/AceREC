@@ -26,9 +26,6 @@ import UserPanel from "@/components/Navbar/UserInfo/UserPanel";
 export default {
   name: "UserInfo",
   directives: {clickoutside},
-  mounted() {
-    console.log("mounted");
-  },
   data () {
     return {
       showForm: false,

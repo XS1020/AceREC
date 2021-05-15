@@ -1,19 +1,42 @@
 <template>
   <div class="home">
     <Carousel/>
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div class="clearfix">
+      <div class="sidebar-content">
+        <div class="featured-author">
+          <h2> Author of the week </h2>
+          <AuthorInfo/>
+          <AuthorInfo/>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from '@/components/HelloWorld.vue'
-import Carousel from "@/components/Carousel";
 
 export default {
   name: 'Home',
   components: {
-    Carousel,
-    HelloWorld
+    AuthorInfo: () => import("@/components/Home/AuthorInfo"),
+    Carousel: () =>  import("@/components/Carousel"),
   }
 }
 </script>
+<style scoped>
+.sidebar-content {
+  width: 25%;
+  float: left;
+  padding: 40px;
+}
+.sidebar-content h2 {
+  font-size: 22px;
+  color: #767676;
+  font-weight: 500;
+  margin-left: 10px;
+}
+.main-content {
+  width: 75%;
+  float: left;
+}
+</style>
