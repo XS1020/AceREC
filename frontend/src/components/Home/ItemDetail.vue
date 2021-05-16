@@ -1,5 +1,5 @@
 <template>
-  <div class="author-info-detail clearfix" v-if="finishedLoading">
+  <div class="author-info-detail clearfix" v-if="finishedLoading && detailType==='author'">
     <div class="avatar-container">
       <img :src="avatar" alt=""/>
       <span> {{title}} </span>
@@ -11,15 +11,23 @@
       <span><i class="fa fa-location-arrow"/> {{location}} </span>
     </div>
   </div>
-  <div v-else> Loading </div>
+  <div class="author-info-detail clearfix" v-else-if="finishedLoading && detailType==='paper'">
+
+  </div>
+  <div class="author-info-detail author-info-loading" v-else>
+    <LoadingCpn/>
+  </div>
 </template>
 
 <script>
+import LoadingCpn from "@/components/LoadingCpn";
 export default {
   name: "AuthorDetail",
+  components: {LoadingCpn},
   beforeMount() {
     setTimeout(() => {this.finishedLoading = true}, 1000)
   },
+  props: ['detailType'],
   data () {
     return {
       finishedLoading: false,
@@ -28,7 +36,7 @@ export default {
       institution: "Nogizaka 46",
       desc: "CS undergraduate, KDE user, Vim\\NeoVim, i3, Archlinux beginner",
       avatar: require("../../assets/avatar.webp"),
-      location: "Tokyo, Japan"
+      location: "Tokyo, Japan",
     }
 
   }
@@ -87,5 +95,12 @@ export default {
   font-size: 14px;
   margin: 10px 0 0 0;
   line-height: 20px;
+}
+.author-info-loading {
+  height: 140px;
+  width: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

@@ -4,7 +4,7 @@
        @mouseleave="showDetail = false">
     <img src="../../assets/avatar.webp" alt=""/>
     <span> Hori Miona </span>
-    <AuthorDetail v-show="showDetail" v-if="loaded"/>
+    <AuthorDetail v-show="showDetail" v-if="loaded" :detail-type="'author'"/>
   </div>
 </template>
 
@@ -12,7 +12,7 @@
 export default {
   name: "AuthorInfo",
   components: {
-    AuthorDetail: () => import("./AuthorDetail"),
+    AuthorDetail: () => import("./ItemDetail"),
   },
   data () {
     return {

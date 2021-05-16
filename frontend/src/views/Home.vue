@@ -3,10 +3,14 @@
     <Carousel/>
     <div class="clearfix">
       <div class="sidebar-content">
-        <div class="featured-author">
+        <div class="featured-items">
           <h2> Author of the week </h2>
           <AuthorInfo/>
           <AuthorInfo/>
+        </div>
+        <div class="featured-items">
+          <h2> Paper of the Year </h2>
+          <PaperInfo/>
         </div>
       </div>
     </div>
@@ -38,5 +42,8 @@ export default {
 .main-content {
   width: 75%;
   float: left;
+}
+.featured-items {
+  min-height: 600px;
 }
 </style>
