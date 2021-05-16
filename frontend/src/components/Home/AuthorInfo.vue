@@ -46,7 +46,4 @@ export default {
   color: #767676;
 }
 
-.view-home-page {
-  border-top: 1px solid #e7e7e7;
-}
 </style>

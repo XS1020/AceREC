@@ -1,8 +1,11 @@
 <template>
-  <div class="author-info-detail clearfix" v-if="finishedLoading && detailType==='author'">
+  <div class="author-info-detail clearfix" v-if="finishedLoading">
     <div class="avatar-container">
-      <img :src="avatar" alt=""/>
-      <span> {{title}} </span>
+      <img :src="avatar" alt=""
+           :class="{'author-avatar': detailType === 'author',
+                    'paper-img': detailType ==='paper'}"
+      />
+      <span v-if="detailType==='author'"> {{title}} </span>
     </div>
     <div class="author-info-container">
       <h2>  {{name}} </h2>
@@ -10,9 +13,6 @@
       <p> {{desc}} </p>
       <span><i class="fa fa-location-arrow"/> {{location}} </span>
     </div>
-  </div>
-  <div class="author-info-detail clearfix" v-else-if="finishedLoading && detailType==='paper'">
-
   </div>
   <div class="author-info-detail author-info-loading" v-else>
     <LoadingCpn/>
@@ -49,6 +49,7 @@ export default {
   background-color: white;
   padding: 0 20px;
   left: 250px;
+  z-index: 2;
   border-radius: 10px;
   transition: all 0.3s;
 }
@@ -56,7 +57,7 @@ export default {
   content: "";
   width: 10px;
   height: 10px;
-  z-index: -1;
+  z-index: 1;
   background-color: inherit;
   position: absolute;
   left: -5px;
@@ -78,11 +79,17 @@ export default {
   width: 20%;
   text-align: center;
 }
-.avatar-container > img {
+.avatar-container > img.author-avatar {
   width: 80px;
   height: 80px;
   border-radius: 50%;
   margin-top: 20px;
+}
+.avatar-container > img.paper-img {
+  width: 80px;
+  height: 120px;
+  margin-top: 20px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 .author-info-container {
   float: left;
