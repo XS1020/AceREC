@@ -14,13 +14,22 @@
         </div>
       </div>
       <div class="main-content">
-        <ul class="tab-menu" :style="{'--tag-position': translateTag}">
+        <nav class="tab-menu" :style="{'--tag-position': translateTag}">
+<!--          <router-link to="/" tag="span" active-class="active">-->
+<!--            All Genres-->
+<!--          </router-link>-->
+<!--          <router-link to="/home/test1" tag="span" active-class="active" @click.native="setTagPosition(1)">-->
+<!--            All Genres-->
+<!--          </router-link>-->
+<!--          <router-link to="/test2" tag="span" active-class="active">-->
+<!--            All Genres-->
+<!--          </router-link>-->
           <router-link v-for="(link, index) in links"
-          :to="link.to" tag="li" active-class="active">
+                       :to="link.to"
+                       tag="span" active-class="active">
             {{link.desc}}
           </router-link>
-
-        </ul>
+        </nav>
         <router-view/>
       </div>
     </div>
@@ -38,28 +47,32 @@ export default {
   },
   data () {
     return {
-      tagPosition: 0,
       links: [
         {
-          desc: "All Genres",
-          to: "/"
+          to: "/home/index",
+          desc: "All Genres"
         },
         {
-          desc: "All Genres",
-          to: "/About"
+          to: "/home/test1",
+          desc: "Test1"
         },
         {
-          desc: "All Genres",
-          to: "/About"
+          to: "/home/test2",
+          desc: "Test2"
         }
       ]
     }
   },
   computed: {
+    tagPosition () {
+      let currentRoute = this.$route.path
+      return this.links.findIndex(link => link.to === currentRoute)
+    },
     translateTag () {
-       return -140 * (this.links.length - this.tagPosition - 1) + "px"
-      }
-  },
+      console.log(this.$route.path);
+      return -140 * (this.links.length - this.tagPosition - 1) + "px"
+    }
+  }
 }
 </script>
 <style scoped>
@@ -86,7 +99,6 @@ export default {
 }
 .tab-menu {
   position: relative;
-  list-style: none;
   display: flex;
   width: 100%;
   justify-content: flex-end;
@@ -95,14 +107,14 @@ export default {
   border-bottom: 1px solid #e7e7e7;
   box-sizing: border-box;
 }
-.tab-menu > li {
+.tab-menu > span {
   min-width: 140px;
   font-weight: 600;
   cursor: pointer;
   text-align: center;
   color: #767676;
 }
-.tab-menu > li.active {
+.tab-menu > span.active {
   font-weight: 800;
   color: #565656;
 }
@@ -114,6 +126,7 @@ export default {
   position: absolute;
   bottom: 0;
   right: 80px;
+  transition: all 0.3s ease-in-out;
   box-shadow: 0 -5px 20px mediumpurple;
   transform: translateX(var(--tag-position));
 }
