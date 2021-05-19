@@ -26,9 +26,10 @@
 <script>
 export default {
   name: "PaperDisplay",
+  props: ['srcPath'],
   data () {
     return {
-      srcPath: require("../../assets/cover.jpg"),
+      srcPath: require("../../assets/1901.05555.png"),
       title: "Act like it",
       author: "Lucy Parker",
       stars: 4,
