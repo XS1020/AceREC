@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 import MySQLdb
 import MySQLdb.cursors
+from Const_Var import Paper_Pdf_Mapping
 
 
 # Create your views here.
@@ -135,8 +136,12 @@ def Main_Page_Card_Info(request):
     )
     confind, jourid, IsLine = 0, 0, False
     for lin in cursor:
-        dRes['year'], dRes['title'] = lin[0], lin[1]
+        dRes['year'], dRes['title'] = lin[1], lin[0]
         jourid, confind, IsLine = lin[2], lin[3], True
+
+    if not IsLine:
+        close_conn(conn, cursor)
+        return HttpResponseBadRequest('No Such Paper')
 
     dRes['conference'], dRes['Abbr'] = '', ''
 
@@ -156,10 +161,6 @@ def Main_Page_Card_Info(request):
     Abs = Get_Paper_Abstract(paperid, cursor)
     if Abs != None:
         dRes.update(Abs)
-
-    if not IsLine:
-        close_conn(conn, cursor)
-        return HttpResponseBadRequest('No Such Paper')
 
     close_conn(conn, cursor)
 
