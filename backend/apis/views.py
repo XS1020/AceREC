@@ -33,6 +33,28 @@ def Get_Conn_Paper():
     return conn, cursor
 
 
+def Get_Conn_Analysis():
+    num = 0
+    while True:
+        num += 1
+        try:
+            conn = MySQLdb.connect(
+                host='server.acemap.cn', port=13307,
+                charset='utf8mb4', user='remote',
+                passwd='bJuPOIQn9LuNZqmFR9qa', db='am_analysis',
+                cursorclass=MySQLdb.cursors.SSCursor
+            )
+        except Exception as err:
+            print(
+                datetime.datetime.now(),
+                "{}. Retry for {} times".format(err, num)
+            )
+        else:
+            break
+    cursor = conn.cursor()
+    return conn, cursor
+
+
 def close_conn(conn, cursor):
     try:
         cursor.close()
@@ -117,6 +139,22 @@ def Get_Paper_Abstract(paperid, cursor=None):
     return None if not Ans else {'abstract': Ans[0]}
 
 
+def Get_Paper_Citation(paperid, cursor=None):
+    Flag = False
+    if cursor is None:
+        conn, cursor = Get_Conn_Analysis()
+        Flag = True
+    cursor.execute(
+        'SELECT citation_count from am_paper_analysis \
+         where paper_id = {}'.format(paperid)
+    )
+    Ans = cursor.fetchone()
+
+    if Flag:
+        close_conn(conn, cursor)
+    return {'citation_count': 0 if not Ans else Ans[0]}
+
+
 def Main_Page_Card_Info(request):
     Data = request.GET
 
@@ -173,6 +211,8 @@ def Main_Page_Card_Info(request):
             dRes['imgurl'] = '{}://{}/static/pdf_img/{}'.format(
                 request.scheme, request.get_host(), imgname
             )
+    dRes['citation_count'] = 0
+    dRes.update(Get_Paper_Citation(paperid))
     """
     print(request.path_info)
     print(request.scheme)
