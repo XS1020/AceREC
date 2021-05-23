@@ -30,25 +30,22 @@
             {{link.desc}}
           </router-link>
         </nav>
-        <router-view/>
+        <keep-alive>
+          <router-view/>
+        </keep-alive>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-
+import axios from "axios";
 export default {
   name: 'Home',
   components: {
     AuthorInfo: () => import("@/components/Home/AuthorInfo"),
     Carousel: () =>  import("@/components/Home/Carousel"),
     PaperInfo: () => import("@/components/Home/PaperInfo")
-  },
-  created () {
-    this.$http({
-      url: "/mainpage/",
-    }).then(res => console.log(res))
   },
   data () {
     return {
@@ -65,7 +62,7 @@ export default {
           to: "/home/test2",
           desc: "Test2"
         }
-      ]
+      ],
     }
   },
   computed: {

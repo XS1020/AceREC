@@ -3,7 +3,7 @@
     <div class="paper-display-container">
         <loading-cpn v-if="!loaded"/>
         <div class="paper-display-main clearfix" v-if="loaded">
-          <img :src="srcPath" alt="">
+          <img :src="imgSrc" alt="">
           <div>
             <h2 class="paper-display-title">{{title}}</h2>
             <span> by {{author}} </span>
@@ -31,8 +31,23 @@ export default {
   name: "PaperDisplay",
   components: {LoadingCpn},
   props: ['srcPath'],
+  mounted () {
+    this.$http({
+      url: "/api/CardInfo",
+      params: {paperid: this.srcPath}
+    }).then(res => {
+      const data = res.data
+      this.title = data.title
+      this.desc = data.abstract
+      this.author = data.author_name_list[0]
+      this.loaded = true
+    }).catch(error => {
+      this.loaded = false
+    })
+  },
   data () {
     return {
+      imgSrc: require('../../assets/1904.09730v1.png'),
       title: "Act like it",
       author: "Lucy Parker",
       stars: 4,
@@ -59,6 +74,13 @@ export default {
 }
 .paper-display-main {
   padding: 10px;
+}
+.paper-display-main h2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 .paper-display-bottom {
   padding: 0;
