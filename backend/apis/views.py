@@ -170,8 +170,14 @@ def Main_Page_Card_Info(request):
         imgname = Paper_Pdf_Mapping[str(paperid)]
         imgname = imgname[:-3] + 'png'
         if os.path.exists(os.path.join(imgdir, imgname)):
-            dRes['imgurl'] = 'static/pdf_img/{}'.format(imgname)
-
+            dRes['imgurl'] = '{}://{}/static/pdf_img/{}'.format(
+                request.scheme, request.get_host(), imgname
+            )
+    """
+    print(request.path_info)
+    print(request.scheme)
+    print(request.get_host())
+    """
     close_conn(conn, cursor)
 
     return JsonResponse(dRes)
