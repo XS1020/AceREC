@@ -36,9 +36,9 @@ export default {
   float: left;
   width: 50%;
   box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  /*display: flex;*/
+  /*justify-content: center;*/
+  /*align-items: center;*/
   padding: 40px;
 
 }

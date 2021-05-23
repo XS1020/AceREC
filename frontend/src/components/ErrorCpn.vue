@@ -1,6 +1,6 @@
 <template>
-  <div>
-    Error
+  <div class="error-pattern">
+    <i class="fa fa-times" aria-hidden="true"></i>
   </div>
 </template>
 
@@ -11,5 +11,22 @@ export default {
 </script>
 
 <style scoped>
-
+.error-pattern {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.error-pattern > i {
+  font-size: 40px;
+  color: palevioletred;
+  animation: spin 3s linear infinite both;
+}
+@keyframes spin {
+  0%{transform: rotate(0)}
+  25%{transform: rotate(90deg)}
+  50%{transform: rotate(180deg)}
+  75%{transform: rotate(270deg)}
+  100%{transform: rotate(360deg)}
+}
 </style>

@@ -2,7 +2,8 @@
   <div>
     <div class="paper-display-container">
         <loading-cpn v-if="!loaded"/>
-        <div class="paper-display-main clearfix" v-if="loaded">
+        <error-cpn v-if="loaded===2"/>
+        <div class="paper-display-main clearfix" v-if="loaded===1">
           <img :src="imgSrc" alt="">
           <div>
             <h2 class="paper-display-title">{{title}}</h2>
@@ -10,6 +11,7 @@
             <ul class="paper-display-star clearfix">
               <li class="active" v-for="i in stars"><i class="fa fa-star"/></li>
               <li v-for="i in 5 - stars"><i class="fa fa-star"/></li>
+              <li class="paper-views"> {{cited}} Cited </li>
             </ul>
             <p> {{desc}} </p>
           </div>
@@ -27,9 +29,10 @@
 
 <script>
 import LoadingCpn from "@/components/LoadingCpn";
+import ErrorCpn from "@/components/ErrorCpn";
 export default {
   name: "PaperDisplay",
-  components: {LoadingCpn},
+  components: {ErrorCpn, LoadingCpn},
   props: ['srcPath'],
   mounted () {
     this.$http({
@@ -40,18 +43,22 @@ export default {
       this.title = data.title
       this.desc = data.abstract
       this.author = data.author_name_list[0]
-      this.loaded = true
+      this.imgSrc = data.imgurl === ""? require('../../assets/1904.09730v1.png'): data.imgurl
+      this.loaded = 1
+      this.cited = data.cited
     }).catch(error => {
-      this.loaded = false
+      console.log(error)
+      this.loaded = 2
     })
   },
   data () {
     return {
-      imgSrc: require('../../assets/1904.09730v1.png'),
+      imgSrc: "",
       title: "Act like it",
       author: "Lucy Parker",
       stars: 4,
-      loaded: true,
+      loaded: 0,
+      cited: 0,
       desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non odio ac sapien maximus malesuada non a tellus. Integer et tempor orci, vel mollis urna"
     }
   },
@@ -80,7 +87,7 @@ export default {
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
 }
 .paper-display-bottom {
   padding: 0;
@@ -96,6 +103,11 @@ export default {
   box-sizing: border-box;
   float: left;
   padding:0 30px;
+}
+.paper-display-main .paper-views {
+  font-size: 12px;
+  line-height: 23px;
+  margin-left: 10px;
 }
 .paper-display-title {
   font-size: 18px;
