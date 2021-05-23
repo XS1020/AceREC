@@ -11,6 +11,12 @@ export default {
 </script>
 
 <style scoped>
+.loading-pattern {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 .loading-pattern > i {
   font-size: 40px;
   color: mediumpurple;

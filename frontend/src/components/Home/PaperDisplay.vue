@@ -1,7 +1,8 @@
 <template>
   <div>
     <div class="paper-display-container">
-        <div class="paper-display-main clearfix">
+        <loading-cpn v-if="!loaded"/>
+        <div class="paper-display-main clearfix" v-if="loaded">
           <img :src="srcPath" alt="">
           <div>
             <h2 class="paper-display-title">{{title}}</h2>
@@ -12,28 +13,37 @@
             </ul>
             <p> {{desc}} </p>
           </div>
+          <a class="view-detail" @click="jumpToDetail"> View Detail<i class="fa fa-angle-right"/> </a>
         </div>
-        <div class="paper-display-bottom">
-          <ul class="paper-display-viewers clearfix">
-            <li><img alt="" src="../../assets/avatar.webp"/></li>
-            <li><img alt="" src="../../assets/avatar.webp"/></li>
-          </ul>
-        </div>
+<!--        <div class="paper-display-bottom" v-if="loaded">-->
+<!--          <ul class="paper-display-viewers clearfix">-->
+<!--            <li><img alt="" src="../../assets/avatar.webp"/></li>-->
+<!--            <li><img alt="" src="../../assets/avatar.webp"/></li>-->
+<!--          </ul>-->
+<!--        </div>-->
     </div>
   </div>
 </template>
 
 <script>
+import LoadingCpn from "@/components/LoadingCpn";
 export default {
   name: "PaperDisplay",
+  components: {LoadingCpn},
   props: ['srcPath'],
   data () {
     return {
-      srcPath: require("../../assets/1901.05555.png"),
       title: "Act like it",
       author: "Lucy Parker",
       stars: 4,
+      loaded: true,
       desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non odio ac sapien maximus malesuada non a tellus. Integer et tempor orci, vel mollis urna"
+    }
+  },
+  methods: {
+    jumpToDetail () {
+      // console.log("in");
+      // this.$router.addRoute("/home/index")
     }
   }
 }
@@ -44,9 +54,10 @@ export default {
   box-shadow: 0 5px 25px rgba(0,0,0,0.1);
   background-color: white;
   position: relative;
+  min-height: 253px;
+  min-width: 490px;
 }
 .paper-display-main {
-  border-bottom: 1px solid #e7e7e7;
   padding: 10px;
 }
 .paper-display-bottom {
@@ -115,5 +126,20 @@ export default {
 }
 .paper-display-viewers li:nth-child(n + 1) {
   margin-left: -7px;
+}
+.paper-display-main .view-detail {
+  position: absolute;
+  bottom: 10px;
+  right: 15px;
+  font-size: 12px;
+  color: rebeccapurple;
+  text-decoration: none;
+  cursor: pointer;
+}
+.view-detail:hover, .view-detail:active {
+  text-decoration: underline;
+}
+.view-detail > i {
+  margin-left: 10px;
 }
 </style>

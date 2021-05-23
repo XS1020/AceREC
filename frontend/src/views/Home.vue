@@ -45,6 +45,11 @@ export default {
     Carousel: () =>  import("@/components/Home/Carousel"),
     PaperInfo: () => import("@/components/Home/PaperInfo")
   },
+  created () {
+    this.$http({
+      url: "/mainpage/",
+    }).then(res => console.log(res))
+  },
   data () {
     return {
       links: [
@@ -69,7 +74,6 @@ export default {
       return this.links.findIndex(link => link.to === currentRoute)
     },
     translateTag () {
-      console.log(this.$route.path);
       return -140 * (this.links.length - this.tagPosition - 1) + "px"
     }
   }
