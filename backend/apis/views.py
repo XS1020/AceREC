@@ -73,6 +73,32 @@ def Get_Paper_Jour(confid, cursor=None):
     return None if not Ans else {'conference': Ans[0]}
 
 
+def Get_Author_List(paperid, cursor=None):
+    Flag = False
+    if cursor is None:
+        conn, cursor = Get_Conn_Paper()
+        Flag = True
+
+    cursor.execute(
+        'SELECT tau.aid, am_author.`name` from (\
+    	    SELECT author_id as aid, sequence as seq \
+    	    from am_paper_author where paper_id = {}\
+    	) as tau \
+    	join am_author on am_author.author_id = tau.aid\
+    	order by tau.seq'.format(paperid)
+    )
+    Aus = {
+        'author_name_list': [],
+        'author_id_list': []
+    }
+    for lin in cursor:
+        Aus['author_name_list'].append(lin[1])
+        Aus['author_id_list'].append(lin[0])
+    if Flag:
+        close_conn(conn, cursor)
+    return Aus
+
+
 def Main_Page_Card_Info(request):
     Data = request.GET
 
@@ -98,7 +124,7 @@ def Main_Page_Card_Info(request):
         jourid, confind, IsLine = lin[2], lin[3], True
 
     dRes['conference'], dRes['Abbr'] = '', ''
-    
+
     if confind != 0:
         Conf = Get_Paper_Conf(confind, cursor)
         if Conf != None:
@@ -108,6 +134,10 @@ def Main_Page_Card_Info(request):
         if Jour != None:
             dRes.update(Jour)
 
+    dRes['author_name_list'] = []
+    dRes['author_id_list'] = []
+    dRes.update(Get_Author_List(paperid, cursor))
+    
 
     if not IsLine:
         close_conn(conn, cursor)
