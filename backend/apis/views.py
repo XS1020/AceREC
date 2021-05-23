@@ -4,7 +4,9 @@ from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 import MySQLdb
 import MySQLdb.cursors
+import os
 from Const_Var import Paper_Pdf_Mapping
+from backend.settings import STATICFILES_DIRS
 
 
 # Create your views here.
@@ -161,6 +163,14 @@ def Main_Page_Card_Info(request):
     Abs = Get_Paper_Abstract(paperid, cursor)
     if Abs != None:
         dRes.update(Abs)
+
+    dRes['imgurl'] = ''
+    imgdir = os.path.join(STATICFILES_DIRS[0], 'pdf_img')
+    if str(paperid) in Paper_Pdf_Mapping:
+        imgname = Paper_Pdf_Mapping[str(paperid)]
+        imgname = imgname[:-3] + 'png'
+        if os.path.exists(os.path.join(imgdir, imgname)):
+            dRes['imgurl'] = 'static/pdf_img/{}'.format(imgname)
 
     close_conn(conn, cursor)
 
