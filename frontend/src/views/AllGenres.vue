@@ -1,8 +1,6 @@
 <template>
   <div class="all-genres-container clearfix">
-    <PaperDisplay/>
-    <PaperDisplay/>
-    <PaperDisplay/>
+    <PaperDisplay v-for="paper in papers" :src-path="paper.url"/>
   </div>
 </template>
 
@@ -10,7 +8,22 @@
 import PaperDisplay from "@/components/Home/PaperDisplay";
 export default {
   name: "AllGenres",
-  components: {PaperDisplay}
+  components: {PaperDisplay},
+  data () {
+    return {
+      papers: [
+        {
+          url: require("../assets/1901.05555.png")
+        },
+        {
+          url: require("../assets/1904.09730v1.png")
+        },
+        {
+          url: require("../assets/1709.05054.png")
+        }
+      ]
+    }
+  }
 }
 </script>
 
