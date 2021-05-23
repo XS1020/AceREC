@@ -99,6 +99,21 @@ def Get_Author_List(paperid, cursor=None):
     return Aus
 
 
+def Get_Paper_Abstract(paperid, cursor=None):
+    Flag = False
+    if cursor is None:
+        conn, cursor = Get_Conn_Paper()
+        Flag = True
+    cursor.execute(
+        'SELECT abstract from am_paper_abstract \
+    	where paper_id = {}'.format(paperid)
+    )
+    Ans = cursor.fetchone()
+    if Flag:
+        close_conn(conn, cursor)
+    return None if not Ans else {'abstract': Ans[0]}
+
+
 def Main_Page_Card_Info(request):
     Data = request.GET
 
@@ -136,8 +151,11 @@ def Main_Page_Card_Info(request):
 
     dRes['author_name_list'] = []
     dRes['author_id_list'] = []
+    dRes['abstract'] = ''
     dRes.update(Get_Author_List(paperid, cursor))
-    
+    Abs = Get_Paper_Abstract(paperid, cursor)
+    if Abs != None:
+        dRes.update(Abs)
 
     if not IsLine:
         close_conn(conn, cursor)
