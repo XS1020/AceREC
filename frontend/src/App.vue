@@ -19,4 +19,7 @@ export default {
 #main-wrap {
   margin-top: 80px;
 }
+#app {
+  width: 1440px;
+}
 </style>

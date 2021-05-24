@@ -45,7 +45,7 @@ export default {
       this.author = data.author_name_list[0]
       this.imgSrc = data.imgurl === ""? require('../../assets/1904.09730v1.png'): data.imgurl
       this.loaded = 1
-      this.cited = data.cited
+      this.cited = data.citation_count
     }).catch(error => {
       console.log(error)
       this.loaded = 2

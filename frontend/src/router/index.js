@@ -37,6 +37,24 @@ const routes = [
     path: "/paper",
     name: "Paper",
     component: () => import("../views/Paper")
+  },
+  {
+    path: "/user",
+    name: "User Profile",
+    redirect: "/user/index",
+  },
+  {
+    path: "/user/index",
+    component: () => import("../views/UserProfile"),
+    children: [
+      {
+        path: "/user/index",
+        component: () => import("../components/UserProfile/UserBasicInfo")
+      },
+      {
+        path: "/user/index1"
+      }
+    ]
   }
 ]
 
