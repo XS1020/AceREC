@@ -75,7 +75,7 @@ def Get_Paper_Conf(confid, cursor=None):
 
     cursor.execute(
         'SELECT name, abbreviation from am_conference_series \
-		where conference_series_id = {}'.format(confid)
+        where conference_series_id = {}'.format(confid)
     )
     Ans = cursor.fetchone()
     if Flag:
@@ -91,7 +91,7 @@ def Get_Paper_Jour(confid, cursor=None):
 
     cursor.execute(
         'SELECT name from am_journal \
-		where journal_id = {}'.format(confid)
+        where journal_id = {}'.format(confid)
     )
     Ans = cursor.fetchone()
     if Flag:
@@ -107,11 +107,11 @@ def Get_Author_List(paperid, cursor=None):
 
     cursor.execute(
         'SELECT tau.aid, am_author.`name` from (\
-    	    SELECT author_id as aid, sequence as seq \
-    	    from am_paper_author where paper_id = {}\
-    	) as tau \
-    	join am_author on am_author.author_id = tau.aid\
-    	order by tau.seq'.format(paperid)
+            SELECT author_id as aid, sequence as seq \
+            from am_paper_author where paper_id = {}\
+        ) as tau \
+        join am_author on am_author.author_id = tau.aid\
+        order by tau.seq'.format(paperid)
     )
     Aus = {
         'author_name_list': [],
@@ -132,7 +132,7 @@ def Get_Paper_Abstract(paperid, cursor=None):
         Flag = True
     cursor.execute(
         'SELECT abstract from am_paper_abstract \
-    	where paper_id = {}'.format(paperid)
+        where paper_id = {}'.format(paperid)
     )
     Ans = cursor.fetchone()
     if Flag:
@@ -156,12 +156,38 @@ def Get_Paper_Citation(paperid, cursor=None):
     return {'citation_count': 0 if not Ans else Ans[0]}
 
 
+def Get_Org_Url(paperid, cursor=None):
+    Flag = False
+    if cursor is None:
+        conn, cursor = Get_Conn_Paper()
+        Flag = True
+    cursor.execute(
+        'SELECT paper_id, type, source_url from am_paper_url \
+         where paper_id = {}'.format(paperid)
+    )
+    Ans = cursor.fetchall()
+
+    if Flag:
+        close_conn(conn, cursor)
+
+    if Ans == []:
+        return {'url': ''}
+    Ansline = 0
+    for lin in range(len(Ans)):
+        if Ans[lin][1] == 1:
+            Ansline = lin
+            break
+        elif Ans[lin][1] < Ans[Ansline][1]:
+            Ansline = lin
+    return {'url': Ans[Ansline][2]}
+
+
 def Main_Page_Card_Info(request):
     Data = request.GET
 
     # Error Part
     if not Data:
-        HttpResponseBadRequest('No \"paperid\" Found')
+        return HttpResponseBadRequest('No \"paperid\" Found')
     paperid = Data.get('paperid', None)
     if paperid is None:
         return HttpResponseBadRequest('No \"paperid\" Found')
@@ -222,3 +248,15 @@ def Main_Page_Card_Info(request):
     close_conn(conn, cursor)
 
     return JsonResponse(dRes)
+
+
+def Paper_Url(request):
+    Data = request.GET
+    if not Data or 'paperid' not in Data:
+        return HttpResponseBadRequest('No \"paperid\" Found')
+    try:
+        paperid = int(Data['paperid'])
+    except ValueError as e:
+        return HttpResponseBadRequest('Not Int Paperid')
+
+    return JsonResponse(Get_Org_Url(paperid))
