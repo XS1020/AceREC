@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 import MySQLdb
 import MySQLdb.cursors
+import datetime
 import os
 from Const_Var import Paper_Pdf_Mapping
 from backend.settings import STATICFILES_DIRS
