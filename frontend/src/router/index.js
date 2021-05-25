@@ -49,7 +49,6 @@ const routes = [
     children: [
       {
         path: "/user/index",
-        component: () => import("../components/UserProfile/UserBasicInfo")
       },
       {
         path: "/user/index1"

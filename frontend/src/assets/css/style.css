@@ -1,4 +1,7 @@
 @import "raleway.css";
+* {
+    box-sizing: border-box;
+}
 body {
     font-family: 'Raleway';
     background-color: #f3f3f3;
@@ -13,7 +16,7 @@ body {
 .nav-bar {
     position: fixed;
     top: 0;
-    width: 95%;
+    width: 100%;
     background-color: #ffffff;
     display: flex;
     align-items: center;

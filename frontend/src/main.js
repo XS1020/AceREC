@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import 'font-awesome/css/font-awesome.css'
-import '@/assets/style.css'
+import '@/assets/css/style.css'
 import request from "./request"
 import less from "less"
 

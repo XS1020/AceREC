@@ -19,26 +19,42 @@
           </button>
         </div>
         <div>
-          <ul class="tag-list clearfix">
+          <ul class="tag-list">
             <li v-for="tag in tags"> {{tag}} </li>
             <li class="add-tag"><i class="fa fa-plus"/> Add Tag </li>
           </ul>
         </div>
       </div>
       <div class="profile-right-box">
-          Fuck
+        <RelatedScholars/>
+      </div>
+    </div>
+    <div class="profile-top-container">
+      <div class="profile-left-box">
+        <div>
+          <h2> Cited Trend </h2>
+        </div>
+        <div></div>
+      </div>
+      <div class="profile-right-box">
+        <HistoryChart/>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import RelatedScholars from "@/components/UserProfile/RelatedScholars";
 export default {
   name: "UserProfile",
+  components: {
+    HistoryChart: () => import("@/components/UserProfile/HistoryChart"),
+    RelatedScholars
+  },
   data () {
     return {
       following: false,
-      tags: ['Front End', 'CS', 'ZKP', 'ASS']
+      tags: ['Front End', 'HTML', 'CSS', 'JavaScript']
     }
   },
   methods: {
@@ -50,18 +66,14 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import "../assets/baseStyle";
+@import "../assets/css/baseStyle";
 
-.display-card {
-  background-color: white;
-  border-radius: 10px;
-  margin: 10px;
-}
 .profile-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
+  flex-direction: column;
 }
 .profile-top-container {
   width: 80%;
@@ -76,6 +88,9 @@ export default {
     & > div {
       .display-card();
       padding: 10px;
+      h2 {
+        .dot-title(purple);
+      }
     }
     .avatar-container {
       display: flex;
@@ -114,8 +129,10 @@ export default {
   }
   .profile-right-box {
     width: 60%;
-    .display-card();
-    padding: 10px;
+    & > div {
+      .display-card();
+      padding: 10px;
+    }
   }
 }
 .follow-button {
@@ -128,8 +145,10 @@ export default {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
   & > li {
-    float: left;
     padding: 2px 5px;
     margin: 0 4px;
     background-color: #e7e7e7;
