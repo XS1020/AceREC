@@ -182,6 +182,20 @@ def Get_Org_Url(paperid, cursor=None):
     return {'url': Ans[Ansline][2]}
 
 
+def Get_Paper_Doi(paperid, cursor=None):
+    Flag = False
+    if cursor is None:
+        cursor, conn = Get_Conn_Paper()
+    cursor.execute(
+        'SELECT paper_id, doi from am_paper\
+        where paper_id = {}'.format(paperid)
+    )
+    Ans = cursor.fetchone()
+    if Flag:
+        close_conn(conn, cursor)
+    return None if not Ans else {'doi': Ans[1]}
+
+
 def Main_Page_Card_Info(request):
     Data = request.GET
 
@@ -260,3 +274,13 @@ def Paper_Url(request):
         return HttpResponseBadRequest('Not Int Paperid')
 
     return JsonResponse(Get_Org_Url(paperid))
+
+
+def Generate_Paper_cite(request):
+    Data = request.GET
+    if not Data or 'paperid' not in Data:
+        return HttpResponseBadRequest('No \"paperid\" Found')
+    try:
+        paperid = int(Data['paperid'])
+    except ValueError as e:
+        return HttpResponseBadRequest('Not a Int Paperid')

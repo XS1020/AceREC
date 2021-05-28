@@ -5,6 +5,6 @@ from Front.views import Search
 
 urlpatterns = [
     path('CardInfo', Main_Page_Card_Info),
-    path('mainpage', MainPage)
+    path('mainpage', MainPage),
     path('search', Search)
 ]
