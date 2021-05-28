@@ -2,69 +2,17 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
-import MySQLdb
-import MySQLdb.cursors
-import datetime
 import os
 from Const_Var import Paper_Pdf_Mapping
 from backend.settings import STATICFILES_DIRS
-
+import MySQLdb
+import MySQLdb.cursors
+import datetime
+from .utils import Get_Conn_Paper
+from .utils import Get_Conn_Analysis
+from .utils import close_conn
 
 # Create your views here.
-
-def Get_Conn_Paper():
-    num = 0
-    while True:
-        num += 1
-        try:
-            conn = MySQLdb.connect(
-                host='server.acemap.cn', port=13307,
-                charset='utf8mb4', user='remote',
-                passwd='bJuPOIQn9LuNZqmFR9qa', db='am_paper',
-                cursorclass=MySQLdb.cursors.SSCursor
-            )
-        except Exception as err:
-            print(
-                datetime.datetime.now(),
-                "{}. Retry for {} times".format(err, num)
-            )
-        else:
-            break
-    cursor = conn.cursor()
-    return conn, cursor
-
-
-def Get_Conn_Analysis():
-    num = 0
-    while True:
-        num += 1
-        try:
-            conn = MySQLdb.connect(
-                host='server.acemap.cn', port=13307,
-                charset='utf8mb4', user='remote',
-                passwd='bJuPOIQn9LuNZqmFR9qa', db='am_analysis',
-                cursorclass=MySQLdb.cursors.SSCursor
-            )
-        except Exception as err:
-            print(
-                datetime.datetime.now(),
-                "{}. Retry for {} times".format(err, num)
-            )
-        else:
-            break
-    cursor = conn.cursor()
-    return conn, cursor
-
-
-def close_conn(conn, cursor):
-    try:
-        cursor.close()
-    except Exception as err:
-        print(datetime.datetime.now(), "cursor close failed", err)
-    try:
-        conn.close()
-    except Exception as err:
-        print(datetime.datetime.now(), "connection close failed", err)
 
 
 def Get_Paper_Conf(confid, cursor=None):
