@@ -23,6 +23,7 @@
 @font-dark-grey: #565656;
 @font-medium-grey: #989898;
 @bg-light-purple: #ebd3e8;
+@font-light-grey: #e0e0e0;
 .button-base {
   outline: none;
   border-radius: 5px;
@@ -55,4 +56,20 @@
     margin-right: 5px;
     margin-bottom: 2px;
   }
+}
+.p-ellipsis(@line) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: @line;
+}
+@keyframes gradientBackground {
+  0% {background-position-x: 100%}
+  100% {background-position-x: 0}
+}
+.changing-background {
+  background-image: linear-gradient(to right, mediumpurple, transparent);
+  background-size: 200% 200%;
+  animation: gradientBackground 0.3s linear 1 both;
 }

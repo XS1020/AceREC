@@ -5,7 +5,7 @@
         <div class="avatar-container">
           <img src="../assets/avatar.webp" alt=""/>
           <div class="name-container">
-            Hori Miona
+            Hori
             <i class="fa fa-twitter"/>
             <i class="fa fa-github"/>
             <i class="fa fa-facebook-square"/>

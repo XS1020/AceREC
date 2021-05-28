@@ -1,7 +1,7 @@
 import axios from 'axios'
 const request = (config) => {
     const axiosInstance = axios.create({
-        timeout: 5000
+        timeout: 100000
     })
     return axiosInstance(config)
 }
