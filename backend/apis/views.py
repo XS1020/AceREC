@@ -276,7 +276,21 @@ def Paper_Url(request):
     return JsonResponse(Get_Org_Url(paperid))
 
 
-def Generate_Paper_cite(request):
+def Generate_cite_name(title, year, author_name_list):
+    title_part = title.split()[0]
+    year_part = str(year)
+    author_part = []
+    if len(author_name_list) > 0:
+        for x in author_name_list[0]:
+            if x.isalpha():
+                author_part.append(x)
+            else:
+                break
+
+    return ''.join(author_part) + year_part + title_part
+
+
+def Generate_Paper_bibtex(request):
     Data = request.GET
     if not Data or 'paperid' not in Data:
         return HttpResponseBadRequest('No \"paperid\" Found')
@@ -284,3 +298,44 @@ def Generate_Paper_cite(request):
         paperid = int(Data['paperid'])
     except ValueError as e:
         return HttpResponseBadRequest('Not a Int Paperid')
+
+    conn, cursor = Get_Conn_Paper()
+    cursor.execute(
+        'SELECT paper_id, title, year, journal_id, \
+        conference_series_id, volume, first_page, last_page\
+        from am_paper where paper_id = {}'.format(paperid)
+    )
+    Ans = cursor.fetchone()
+    if not Ans:
+        close_conn(conn, cursor)
+        return HttpResponseBadRequest('No Such Paper')
+
+    paper_id, title, year = Ans[0], Ans[1], Ans[2]
+    jourid, confid = Ans[3], Ans[4]
+    vol, fpage, lpage = Ans[5], Ans[6], Ans[7]
+    if confid != 0:
+        Conf = Get_Paper_Conf(confid, cursor)
+    if jourid != 0:
+        Jour = Get_Paper_Jour(jourid, cursor)
+
+    Auinfo = Get_Author_List(paperid, cursor)
+
+    Answer = """@article{ %s,
+    title = {%s},
+    author = {%s},
+    %s %s %s %s %s}""" % (
+        Generate_cite_name(title, year, Auinfo['author_name_list']),
+        title, ' and '.join(Auinfo['author_name_list']).replace('.', ' '),
+        'year = {{{}}},\n'.format(year) if year != 0 else '',
+        'booktitle = {{ {} }},\n'.format(
+            Conf['conference']
+        ) if confid != 0 else '',
+        'journal={{ {} }},\n'.format(
+            Jour['conference']
+        ) if jourid != 0 else '',
+        'volume={{{}}},\n'.format(vol) if vol != 0 else '',
+        'pages={{{}--{}}},\n'.format(fpage, lpage) if lpage != 0 else ''
+    )
+
+    close_conn(conn, cursor)
+    return JsonResponse({'bib': Answer})
