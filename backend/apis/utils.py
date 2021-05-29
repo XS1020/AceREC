@@ -2,6 +2,7 @@ import MySQLdb
 import MySQLdb.cursors
 import datetime
 import json
+from User.models import User_Info
 
 
 def Get_Conn_Paper():
@@ -230,8 +231,8 @@ def Get_Citation_Trend(paperid, cursor=None):
 
 
 def Get_Paper_Keyword(
-    paperid, wordname='keyword', 
-    levelname='level',cursor=None
+    paperid, wordname='keyword',
+    levelname='level', cursor=None
 ):
     Flag = False
     if cursor is None:
@@ -254,3 +255,8 @@ def Get_Paper_Keyword(
     return Keywords
 
 
+def Remote_to_Local(remote_ids):
+    Ans = {}
+    for ids in remote_ids:
+        Ans[ids] = 1
+    return Ans

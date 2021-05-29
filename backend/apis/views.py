@@ -16,6 +16,7 @@ from .utils import Get_Paper_Conf, Get_Paper_Jour, Get_Citation_Trend
 from .utils import Get_Author_List, Get_Paper_Citation
 from .utils import Get_Paper_Abstract, Get_Org_Url, Get_Paper_Doi
 from .utils import Get_Paper_Keyword, Get_Paper_Doi, Get_Org_Url
+from .utils import Remote_to_Local
 # Create your views here.
 
 
@@ -257,12 +258,14 @@ def Paper_Page_Info(request):
     if Abs:
         DAns.update(Abs)
     Author_Info = Get_Author_List(paperid, cursor)
-    
+    RtoL = Remote_to_Local(Author_Info['author_id_list'])
+
     DAns['Authors'] = []
     for i, name in enumerate(Author_Info['author_name_list']):
         remote_id = Author_Info['author_id_list'][i]
         DAns['Authors'].append({
             'name': name, 'remote_id': remote_id,
+            'local_id': RtoL[remote_id],
             'clickable': 1 if remote_id in Author_Subset else 0
         })
 
