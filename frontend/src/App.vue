@@ -2,10 +2,10 @@
   <div id="app">
     <nav-bar></nav-bar>
     <div id="main-wrap">
-      <router-view @showExportOptions="showExportOptions"/>
+      <router-view @showExportOptions="exportOptions = true"/>
     </div>
-    <div class="pop-up-window">
-      <ExportOptions/>
+    <div class="pop-up-window" v-if="exportOptions">
+      <ExportOptions  @closePopup="exportOptions = false"/>
     </div>
   </div>
 </template>
@@ -17,9 +17,12 @@ export default {
     NavBar,
     ExportOptions: () => import("./components/Home/ExportOptions")
   },
-  methods: {
-    showExportOptions () {
+  data () {
+    return {
+      exportOptions: false
     }
+  },
+  methods: {
   }
 }
 </script>
@@ -32,7 +35,8 @@ export default {
   width: 1440px;
 }
 .pop-up-window {
- position: absolute;
+  z-index: 1;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;

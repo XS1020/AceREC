@@ -49,7 +49,7 @@
   &:before {
     content: "";
     display: inline-block;
-    background-color: @dot-color;
+    background-color: @dot-color !important;
     height: 8px;
     width: 8px;
     border-radius: 50%;
@@ -72,4 +72,24 @@
   background-image: linear-gradient(to right, mediumpurple, transparent);
   background-size: 200% 200%;
   animation: gradientBackground 0.3s linear 1 both;
+}
+.random-color(@index, @color-list) when (@index > 0){
+  &>div:nth-of-type(@{index})>h2 {
+    .dot-title(extract(@color-list, @index))
+  }
+  .random-color(@index - 1, @color-list)
+}
+
+.label-list-base(@index, @font-color-list, @bg-color-list) when (@index > 0){
+  li:nth-child(3n+@{index}) {
+    color: extract(@font-color-list, @index);
+    background-color: extract(@bg-color-list, @index);
+  }
+  .label-list-base(@index - 1, @font-color-list, @bg-color-list)
+}
+
+.label-list {
+  @font-colors: orange, purple, #ff6e80;
+  @bg-colors: #fff2e5, #efebfd, #ffeef0;
+  .label-list-base(3, @font-colors, @bg-colors);
 }

@@ -20,7 +20,6 @@ export default {
 .error-pattern > i {
   font-size: 40px;
   color: palevioletred;
-  animation: spin 3s linear infinite both;
 }
 @keyframes spin {
   0%{transform: rotate(0)}

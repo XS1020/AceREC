@@ -10,7 +10,7 @@ import less from "less"
 Vue.config.productionTip = false
 Vue.prototype.$http = request
 Vue.use(less)
-
+Vue.prototype.$window = window
 import NavBar from "@/components/NavBar";
 new Vue({
   router,

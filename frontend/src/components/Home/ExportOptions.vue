@@ -1,18 +1,11 @@
 <template>
   <div class="export-options-popup">
-    <i class="fa fa-times close-button"/>
-    <h2> Export Options </h2>
+    <i class="fa fa-times close-button" @click="closePopup"/>
+    <h2> Cite Source </h2>
     <div class="options">
       <span> BibTeX </span>
-      <p> @article{1998Imperfections,
-        title={Imperfections of the thermohaline circulation: latitudinal asymmetry and preferred northern sinking},
-        author={ Dijkstra, H. A.  and  Neelin, J. D. },
-        journal={Journal of Climate},
-        volume={13},
-        number={2},
-        year={1998},
-        }
-        <i class="fa fa-copy"/>
+      <p>
+        <pre><code>{{bib}}</code></pre>
       </p>
     </div>
   </div>
@@ -20,16 +13,35 @@
 
 <script>
 export default {
-  name: "ExportOptions"
+  name: "ExportOptions",
+  created() {
+    this.$http({
+      url: "/api/bib",
+      params: {
+        paperid: 94747717
+      }
+    }).then(res => this.bib = res.data.bib)
+  },
+  methods: {
+    closePopup () {
+      this.$emit('closePopup')
+    },
+  },
+  data () {
+    return {
+      bib: ""
+    }
+  }
 }
 </script>
 
 <style lang="less">
 @import "../../assets/css/baseStyle";
 .export-options-popup {
-  width: 40%;
+  width: 50%;
   position: relative;
   i.close-button {
+    cursor: pointer;
     font-size: 14px;
     color: @font-medium-grey;
     position: absolute;
@@ -50,12 +62,16 @@ export default {
       font-size: 16px;
       display: block;
       width: 20%;
+      font-weight: 600;
     }
     p {
+      max-width: 80%;
+      overflow-x: scroll;
       position: relative;
       border-radius: 5px;
       font-size: 16px;
-      padding: 30px;
+      color: #989898;
+      padding: 10px;
       margin: 0 0 0 20px;
       background-color: #f3f3f3;
       i {
