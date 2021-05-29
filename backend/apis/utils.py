@@ -227,3 +227,30 @@ def Get_Citation_Trend(paperid, cursor=None):
     if Flag:
         close_conn(conn, cursor)
     return [] if not ctrend else json.loads(ctrend[0])
+
+
+def Get_Paper_Keyword(
+    paperid, wordname='keyword', 
+    levelname='level',cursor=None
+):
+    Flag = False
+    if cursor is None:
+        conn, cursor = Get_Conn_Paper()
+        Flag = True
+
+    cursor.execute(
+        'SELECT am_field.`name`, taf.field_id, am_field.`level` from (\
+         SELECT paper_id, field_id FROM am_paper_field WHERE paper_id = {}\
+        ) as taf JOIN am_field on am_field.field_id = taf.field_id'.format(paperid)
+    )
+
+    Keywords = []
+    for lin in cursor:
+        Keywords.append({wordname: lin[0], levelname: lin[2]})
+
+    if Flag:
+        close_conn(conn, cursor)
+
+    return Keywords
+
+

@@ -14,6 +14,7 @@ from .models import Record
 from .utils import Get_Paper_Conf, Get_Paper_Jour, Get_Citation_Trend
 from .utils import Get_Author_List, Get_Paper_Citation
 from .utils import Get_Paper_Abstract, Get_Org_Url, Get_Paper_Doi
+from .utils import Get_Paper_Keyword, Get_Paper_Doi
 # Create your views here.
 
 
@@ -210,3 +211,34 @@ def Paper_Citation_Trend(request):
 
     return JsonResponse({'cite_trend': Cite_trend})
 
+
+def Paper_Page_Info(request):
+    Data = request.GET
+
+    if not Data or 'paperid' not in Data:
+        return HttpResponseBadRequest("No PaperId Found")
+
+    try:
+        paperid = int(Data['paperid'])
+    except ValueError as e:
+        return HttpResponseNotAllowed("Not a Int Paperid")
+
+    conn, cursor = Get_Conn_Paper()
+
+    close_conn(conn, cursor)
+
+
+def Paper_Keyword(request):
+    Data = request.GET
+
+    if not Data or 'paperid' not in Data:
+        return HttpResponseBadRequest("Not PaperId Found")
+
+    try:
+        paperid = int(Data['paperid'])
+    except ValueError as e:
+        return HttpResponseNotAllowed("Not a Int Paperid")
+
+    keywords = Get_Paper_Keyword(paperid, 'text', 'size')
+
+    return JsonResponse({'keyword': keywords})
