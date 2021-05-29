@@ -15,7 +15,7 @@ from .models import Record
 from .utils import Get_Paper_Conf, Get_Paper_Jour, Get_Citation_Trend
 from .utils import Get_Author_List, Get_Paper_Citation
 from .utils import Get_Paper_Abstract, Get_Org_Url, Get_Paper_Doi
-from .utils import Get_Paper_Keyword, Get_Paper_Doi
+from .utils import Get_Paper_Keyword, Get_Paper_Doi, Get_Org_Url
 # Create your views here.
 
 
@@ -238,7 +238,7 @@ def Paper_Page_Info(request):
         return HttpResponseBadRequest("No Such Paper")
 
     title, doi, year = BasInfo
-    DAns = {'title': title, 'doi': doi, year: 'year'}
+    DAns = {'title': title, 'doi': doi, 'year': year}
 
     DAns['imgurl'] = ''
     imgdir = os.path.join(STATICFILES_DIRS[0], 'pdf_img')
@@ -264,6 +264,8 @@ def Paper_Page_Info(request):
             'name': name, 'remote_id': remote_id,
             'clickable': 1 if remote_id in Author_Subset else 0
         })
+
+    DAns.update(Get_Org_Url(paperid, cursor))
 
     close_conn(conn, cursor)
     return JsonResponse(DAns)
