@@ -18,7 +18,16 @@ class Record(models.Model):
     paper_id = models.BigIntegerField(db_index=True)
     user_id = models.BigIntegerField(db_index=True)
 
+    rectypes = (
+        (1, 'view'),
+        (2, 'click')
+    )
+    rtype = models.IntegerField(choices=rectypes, default=1)
+
     class Meta:
         ordering = ['updated_time']
 
 
+class Paper_Field(models.Model):
+    paper_id = models.BigIntegerField(db_index=True)
+    field_id = models.IntegerField(db_index=True)

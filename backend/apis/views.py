@@ -11,6 +11,7 @@ import datetime
 from .utils import Get_Conn_Paper
 from .utils import Get_Conn_Analysis
 from .utils import close_conn
+from .models import Record
 
 # Create your views here.
 
@@ -276,11 +277,17 @@ def Generate_Paper_bibtex(request):
     close_conn(conn, cursor)
     return JsonResponse({'bib': Answer})
 
+
 def Add_View_recoed(request):
-    Data = request.GET
+    Data = request.POST
 
-    if not Data or 'userid' not in Data or 'paperid' not in Data:
-        return HttpResponseBadRequest("No Sufficient Data")
+    if not Data or 'user_id' not in Data or 'paper_id' not in Data:
+        return JsonResponse({'stat': 0, 'Reason': "No Sufficient Data"})
 
-    
+    user_id, paper_id_list = Data['user_id'], Data['paper_id']
+
+    for paper_id in paper_id_list:
+        Record.objects.create(paper_id=paper_id, user_id=user_id, rtype=1)
+
+    return JsonResponse({"stat": 1, "Reson": ""})
 
