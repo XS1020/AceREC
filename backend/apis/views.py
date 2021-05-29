@@ -21,6 +21,18 @@ from .utils import Get_Person_Cite
 # Create your views here.
 
 
+def Cover_Url(request, paperid):
+    imgdir = os.path.join(STATICFILES_DIRS[0], 'pdf_img')
+    if str(paperid) in Paper_Pdf_Mapping:
+        imgname = Paper_Pdf_Mapping[str(paperid)]
+        imgname = imgname[:-3] + 'png'
+        if os.path.exists(os.path.join(imgdir, imgname)):
+            return '{}://{}/static/pdf_img/{}'.format(
+                request.scheme, request.get_host(), imgname
+            )
+    return ''
+
+
 def Main_Page_Card_Info(request):
     Data = request.GET
 
@@ -68,15 +80,8 @@ def Main_Page_Card_Info(request):
     if Abs != None:
         dRes.update(Abs)
 
-    dRes['imgurl'] = ''
-    imgdir = os.path.join(STATICFILES_DIRS[0], 'pdf_img')
-    if str(paperid) in Paper_Pdf_Mapping:
-        imgname = Paper_Pdf_Mapping[str(paperid)]
-        imgname = imgname[:-3] + 'png'
-        if os.path.exists(os.path.join(imgdir, imgname)):
-            dRes['imgurl'] = '{}://{}/static/pdf_img/{}'.format(
-                request.scheme, request.get_host(), imgname
-            )
+    dRes['imgurl'] = Cover_Url(request, paperid)
+
     dRes['citation_count'] = 0
     dRes.update(Get_Paper_Citation(paperid))
     """
@@ -242,15 +247,7 @@ def Paper_Page_Info(request):
     title, doi, year = BasInfo
     DAns = {'title': title, 'doi': doi, 'year': year}
 
-    DAns['imgurl'] = ''
-    imgdir = os.path.join(STATICFILES_DIRS[0], 'pdf_img')
-    if str(paperid) in Paper_Pdf_Mapping:
-        imgname = Paper_Pdf_Mapping[str(paperid)]
-        imgname = imgname[:-3] + 'png'
-        if os.path.exists(os.path.join(imgdir, imgname)):
-            DAns['imgurl'] = '{}://{}/static/pdf_img/{}'.format(
-                request.scheme, request.get_host(), imgname
-            )
+    DAns['imgurl'] = Cover_Url(request, paperid)
 
     DAns['citation_count'] = 0
     DAns.update(Get_Paper_Citation(paperid))
@@ -308,3 +305,37 @@ def Person_Cite_Trend(request):
     Cite_trend = Get_Person_Cite(remote_id)
     Cite_trend.sort(key=lambda x: x['year'])
     return JsonResponse({'trend': Cite_trend})
+
+
+def Cite_Card_Info(request):
+    Data = request.GET
+    if not Data or 'paperid' not in Data:
+        return HttpResponseBadRequest("No PaperId Found")
+
+    try:
+        paperid = int(Data['paperid'])
+    except ValueError as e:
+        return HttpResponseNotAllowed("Not Int paperid")
+
+    conn, cursor = Get_Conn_Paper()
+
+    cursor.execute(
+        'SELECT title, year from am_paper\
+        where paper_id = {}'.format(paperid)
+    )
+    Ans = cursor.fetchone()
+    if not Ans:
+        close_conn(conn, cursor)
+        return HttpResponseBadRequest("No Such Paper")
+
+    title, year = Ans
+
+    Dans = {'title': title, 'year': year}
+    Author_Info = Get_Author_List(paperid, cursor)
+    Dans.update(Author_Info)
+
+    close_conn(conn, cursor)
+
+    Dans['imgurl'] = Cover_Url(request, paperid)
+
+    return JsonResponse(Dans)

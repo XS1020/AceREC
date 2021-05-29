@@ -292,7 +292,7 @@ def Get_Person_Cite(person_id):
 
     cursor.execute(
         'SELECT citation_trend from am_paper_analysis\
-        where paper_id in ({})'.format(','.json(str(x) for x in Paperlist))
+        where paper_id in ({})'.format(','.join(str(x) for x in Paperlist))
     )
     Cite_tot = {}
     for lin in cursor:
@@ -303,7 +303,7 @@ def Get_Person_Cite(person_id):
 
     close_conn(conn, cursor)
     Ans = []
-    for k, v in Cite_tot:
+    for k, v in Cite_tot.items():
         Ans.append({
             'citation_count': v,
             'year': k
