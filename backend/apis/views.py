@@ -257,6 +257,7 @@ def Paper_Page_Info(request):
     if Abs:
         DAns.update(Abs)
     Author_Info = Get_Author_List(paperid, cursor)
+    
     DAns['Authors'] = []
     for i, name in enumerate(Author_Info['author_name_list']):
         remote_id = Author_Info['author_id_list'][i]
