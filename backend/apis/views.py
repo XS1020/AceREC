@@ -2,147 +2,19 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
+from django.http import HttpResponseNotAllowed
 import os
 from Const_Var import Paper_Pdf_Mapping
 from backend.settings import STATICFILES_DIRS
 import MySQLdb
 import MySQLdb.cursors
 import datetime
-from .utils import Get_Conn_Paper
-from .utils import Get_Conn_Analysis
-from .utils import close_conn
+from .utils import Get_Conn_Paper, Get_Conn_Analysis, close_conn
 from .models import Record
-
+from .utils import Get_Paper_Conf, Get_Paper_Jour
+from .utils import Get_Author_List, Get_Paper_Citation
+from .utils import Get_Paper_Abstract, Get_Org_Url, Get_Paper_Doi
 # Create your views here.
-
-
-def Get_Paper_Conf(confid, cursor=None):
-    Flag = False
-    if cursor is None:
-        conn, cursor = Get_Conn_Paper()
-        Flag = True
-
-    cursor.execute(
-        'SELECT name, abbreviation from am_conference_series \
-        where conference_series_id = {}'.format(confid)
-    )
-    Ans = cursor.fetchone()
-    if Flag:
-        close_conn(conn, cursor)
-    return None if not Ans else {'conference': Ans[0], 'Abbr': Ans[1]}
-
-
-def Get_Paper_Jour(confid, cursor=None):
-    Flag = False
-    if cursor is None:
-        conn, cursor = Get_Conn_Paper()
-        Flag = True
-
-    cursor.execute(
-        'SELECT name from am_journal \
-        where journal_id = {}'.format(confid)
-    )
-    Ans = cursor.fetchone()
-    if Flag:
-        close_conn(conn, cursor)
-    return None if not Ans else {'conference': Ans[0]}
-
-
-def Get_Author_List(paperid, cursor=None):
-    Flag = False
-    if cursor is None:
-        conn, cursor = Get_Conn_Paper()
-        Flag = True
-
-    cursor.execute(
-        'SELECT tau.aid, am_author.`name` from (\
-            SELECT author_id as aid, sequence as seq \
-            from am_paper_author where paper_id = {}\
-        ) as tau \
-        join am_author on am_author.author_id = tau.aid\
-        order by tau.seq'.format(paperid)
-    )
-    Aus = {
-        'author_name_list': [],
-        'author_id_list': []
-    }
-    for lin in cursor:
-        Aus['author_name_list'].append(lin[1])
-        Aus['author_id_list'].append(lin[0])
-    if Flag:
-        close_conn(conn, cursor)
-    return Aus
-
-
-def Get_Paper_Abstract(paperid, cursor=None):
-    Flag = False
-    if cursor is None:
-        conn, cursor = Get_Conn_Paper()
-        Flag = True
-    cursor.execute(
-        'SELECT abstract from am_paper_abstract \
-        where paper_id = {}'.format(paperid)
-    )
-    Ans = cursor.fetchone()
-    if Flag:
-        close_conn(conn, cursor)
-    return None if not Ans else {'abstract': Ans[0]}
-
-
-def Get_Paper_Citation(paperid, cursor=None):
-    Flag = False
-    if cursor is None:
-        conn, cursor = Get_Conn_Analysis()
-        Flag = True
-    cursor.execute(
-        'SELECT citation_count from am_paper_analysis \
-         where paper_id = {}'.format(paperid)
-    )
-    Ans = cursor.fetchone()
-
-    if Flag:
-        close_conn(conn, cursor)
-    return {'citation_count': 0 if not Ans else Ans[0]}
-
-
-def Get_Org_Url(paperid, cursor=None):
-    Flag = False
-    if cursor is None:
-        conn, cursor = Get_Conn_Paper()
-        Flag = True
-    cursor.execute(
-        'SELECT paper_id, type, source_url from am_paper_url \
-         where paper_id = {}'.format(paperid)
-    )
-    Ans = cursor.fetchall()
-
-    if Flag:
-        close_conn(conn, cursor)
-
-    if Ans == []:
-        return {'url': ''}
-    Ansline = 0
-    for lin in range(len(Ans)):
-        if Ans[lin][1] == 1:
-            Ansline = lin
-            break
-        elif Ans[lin][1] < Ans[Ansline][1]:
-            Ansline = lin
-    return {'url': Ans[Ansline][2]}
-
-
-def Get_Paper_Doi(paperid, cursor=None):
-    Flag = False
-    if cursor is None:
-        cursor, conn = Get_Conn_Paper()
-    cursor.execute(
-        'SELECT paper_id, doi from am_paper\
-        where paper_id = {}'.format(paperid)
-    )
-    Ans = cursor.fetchone()
-    if Flag:
-        close_conn(conn, cursor)
-    return None if not Ans else {'doi': Ans[1]}
 
 
 def Main_Page_Card_Info(request):
@@ -157,7 +29,7 @@ def Main_Page_Card_Info(request):
     try:
         paperid = int(paperid)
     except ValueError as e:
-        return HttpResponseBadRequest('Not Int Paperid')
+        return HttpResponseNotAllowed('Not Int Paperid')
 
     (conn, cursor), dRes = Get_Conn_Paper(), {}
     cursor.execute(
@@ -234,7 +106,7 @@ def Generate_Paper_bibtex(request):
     try:
         paperid = int(Data['paperid'])
     except ValueError as e:
-        return HttpResponseBadRequest('Not a Int Paperid')
+        return HttpResponseNotAllowed('Not a Int Paperid')
 
     conn, cursor = Get_Conn_Paper()
     cursor.execute(
@@ -286,8 +158,11 @@ def Add_View_recoed(request):
     if 'remote_id' not in Data or 'paper_id' not in Data:
         return JsonResponse({'stat': 0, 'Reason': "No Sufficient Data"})
 
-    paper_id_list = Data['paper_id']
-    local_id, remote_id = Data['local_id'], Data['remote_id']
+    try:
+        paper_id = int(Data['paper_id'])
+        local_id, remote_id = int(Data['local_id']), int(Data['remote_id'])
+    except ValueError as e:
+        return HttpResponseNotAllowed("Not Int Ids")
 
     for paper_id in paper_id_list:
         Record.objects.create(
@@ -305,9 +180,11 @@ def Add_Click_record(request):
         return JsonResponse({'stat': 0, 'Reason': "No Sufficient Data"})
     if 'remote_id' not in Data or 'paper_id' not in Data:
         return JsonResponse({'stat': 0, 'Reason': "No Sufficient Data"})
-
-    paper_id = Data['paper_id']
-    local_id, remote_id = Data['local_id'], Data['remote_id']
+    try:
+        paper_id = int(Data['paper_id'])
+        local_id, remote_id = int(Data['local_id']), int(Data['remote_id'])
+    except ValueError as e:
+        return HttpResponseNotAllowed("Not Int Ids")
 
     Record.objects.create(
         paper_id=paper_id, local_id=local_id,
@@ -315,5 +192,3 @@ def Add_Click_record(request):
     )
 
     return JsonResponse({"stat": 1, "Reson": ""})
-
-

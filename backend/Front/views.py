@@ -5,6 +5,7 @@ from django.http import HttpResponseNotAllowed
 import json
 # Create your views here.
 import pysolr
+from apis.utils import Get_Paper_Ref
 
 
 def MainPage(request):
@@ -26,7 +27,7 @@ def Get_Search_Res(keyword, stype='full', solrlink=None):
     keyword = '+'.join(keyword.split())
     if stype not in ['full', 'title', 'author_name', 'cf_jor']:
         raise ValueError('Not a legal search type')
-        
+
     if stype == 'full':
         result = solrlink.search('search:%s' % keyword)
     if stype == 'title':
@@ -49,12 +50,34 @@ def Search(request):
     Solr = pysolr.Solr('http://localhost:8983/solr/EE447', timeout=300)
     search_type = Data.get('stype', 'full')
     keyword = Data['keyword']
-    
+
     try:
         result = Get_Search_Res(keyword, search_type, Solr)
     except Exception as e:
         return HttpResponseNotAllowed(str(e))
-    
+
     # result = Get_Search_Res(keyword, search_type, Solr)
     Paperid_list = [res['paperid'] for res in result]
     return JsonResponse({'paper_id_list': Paperid_list})
+
+
+def Recomend_and_cite_Paper_Page(request):
+    Data = request.GET
+    if not Data or 'paper_id' not in Data:
+        return HttpResponseBadRequest("No \"paperid\" Found")
+
+    try:
+        paperid = int(Data['paper_id'])
+    except ValueError as e:
+        return HttpResponseNotAllowed("Not Int paperid")
+
+    Recom = [
+        94747717, 172379530, 216802878, 223658030, 228111136
+    ]
+
+    Ans = {'Rec': Recom, 'Ref': []}
+    Refs = Get_Paper_Ref(paperid)
+    if Refs:
+        Ans.update(Refs)
+
+    return JsonResponse(Ans)
