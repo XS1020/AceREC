@@ -6,6 +6,7 @@ import json
 # Create your views here.
 import pysolr
 from apis.utils import Get_Paper_Ref
+from Const_Var import Paper_Subset
 
 
 def MainPage(request):
@@ -79,5 +80,7 @@ def Recomend_and_cite_Paper_Page(request):
     Refs = Get_Paper_Ref(paperid)
     if Refs:
         Ans.update(Refs)
+
+    Ans['Clickable'] = [1 if x in Paper_Subset else 0 for x in Ans['Ref']]
 
     return JsonResponse(Ans)

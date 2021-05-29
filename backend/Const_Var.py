@@ -10,5 +10,9 @@ Paper_Pdf_Mapping = {}
 with open(Mapping_Path) as Fin:
     Paper_Pdf_Mapping = json.load(Fin)
 
-with open('Paper_Subset.pkl', 'rb') as Fin:
+Paper_Subset_dir = os.path.join(BASE_DIR, 'Paper_Subset.pkl')
+with open(Paper_Subset_dir, 'rb') as Fin:
     Paper_Subset = pickle.load(Fin)
+
+with open(os.path.join(BASE_DIR, 'Author_IDs.pickle'), 'rb') as Fin:
+    Author_Subset = pickle.load(Fin)

@@ -206,5 +206,7 @@ def Paper_Citation_Trend(request):
         return HttpResponseNotAllowed('Not a Int Paperid')
 
     Cite_trend = Get_Citation_Trend(paperid)
+    Cite_trend.sort(key=lambda x: x['year'])
 
     return JsonResponse({'cite_trend': Cite_trend})
+
