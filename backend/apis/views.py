@@ -289,3 +289,11 @@ def Paper_Keyword(request):
     keywords = Get_Paper_Keyword(paperid, 'text', 'size')
 
     return JsonResponse({'keyword': keywords})
+
+def Person_Cite_Trend(request):
+    Data = request.GET
+
+    if not Data or 'local_id' not in Data:
+        return HttpResponseBadRequest("No Such Person")
+
+    

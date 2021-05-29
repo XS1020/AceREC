@@ -3,6 +3,7 @@ import MySQLdb.cursors
 import datetime
 import json
 from User.models import User_Info
+from collections import Iterable
 
 
 def Get_Conn_Paper():
@@ -256,7 +257,17 @@ def Get_Paper_Keyword(
 
 
 def Remote_to_Local(remote_ids):
-    Ans = {}
-    for ids in remote_ids:
-        Ans[ids] = 1
+    if isinstance(remote_ids, Iterable):
+        Ans = {}
+        for ids in remote_ids:
+            Ans[ids] = 1
+    else:
+        Ans = 1363061285
+    return Ans
+
+def Local_to_Remote(Local_ids):
+    if isinstance(Local_ids, Iterable):
+        Ans = {}
+    else:
+        Ans = 1363061285
     return Ans
