@@ -2,69 +2,18 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
-import MySQLdb
-import MySQLdb.cursors
-import datetime
 import os
 from Const_Var import Paper_Pdf_Mapping
 from backend.settings import STATICFILES_DIRS
-
+import MySQLdb
+import MySQLdb.cursors
+import datetime
+from .utils import Get_Conn_Paper
+from .utils import Get_Conn_Analysis
+from .utils import close_conn
+from .models import Record
 
 # Create your views here.
-
-def Get_Conn_Paper():
-    num = 0
-    while True:
-        num += 1
-        try:
-            conn = MySQLdb.connect(
-                host='server.acemap.cn', port=13307,
-                charset='utf8mb4', user='remote',
-                passwd='bJuPOIQn9LuNZqmFR9qa', db='am_paper',
-                cursorclass=MySQLdb.cursors.SSCursor
-            )
-        except Exception as err:
-            print(
-                datetime.datetime.now(),
-                "{}. Retry for {} times".format(err, num)
-            )
-        else:
-            break
-    cursor = conn.cursor()
-    return conn, cursor
-
-
-def Get_Conn_Analysis():
-    num = 0
-    while True:
-        num += 1
-        try:
-            conn = MySQLdb.connect(
-                host='server.acemap.cn', port=13307,
-                charset='utf8mb4', user='remote',
-                passwd='bJuPOIQn9LuNZqmFR9qa', db='am_analysis',
-                cursorclass=MySQLdb.cursors.SSCursor
-            )
-        except Exception as err:
-            print(
-                datetime.datetime.now(),
-                "{}. Retry for {} times".format(err, num)
-            )
-        else:
-            break
-    cursor = conn.cursor()
-    return conn, cursor
-
-
-def close_conn(conn, cursor):
-    try:
-        cursor.close()
-    except Exception as err:
-        print(datetime.datetime.now(), "cursor close failed", err)
-    try:
-        conn.close()
-    except Exception as err:
-        print(datetime.datetime.now(), "connection close failed", err)
 
 
 def Get_Paper_Conf(confid, cursor=None):
@@ -264,19 +213,21 @@ def Main_Page_Card_Info(request):
     return JsonResponse(dRes)
 
 
-def Paper_Url(request):
-    Data = request.GET
-    if not Data or 'paperid' not in Data:
-        return HttpResponseBadRequest('No \"paperid\" Found')
-    try:
-        paperid = int(Data['paperid'])
-    except ValueError as e:
-        return HttpResponseBadRequest('Not Int Paperid')
+def Generate_cite_name(title, year, author_name_list):
+    title_part = title.split()[0]
+    year_part = str(year)
+    author_part = []
+    if len(author_name_list) > 0:
+        for x in author_name_list[0]:
+            if x.isalpha():
+                author_part.append(x)
+            else:
+                break
 
-    return JsonResponse(Get_Org_Url(paperid))
+    return ''.join(author_part) + year_part + title_part
 
 
-def Generate_Paper_cite(request):
+def Generate_Paper_bibtex(request):
     Data = request.GET
     if not Data or 'paperid' not in Data:
         return HttpResponseBadRequest('No \"paperid\" Found')
@@ -284,3 +235,59 @@ def Generate_Paper_cite(request):
         paperid = int(Data['paperid'])
     except ValueError as e:
         return HttpResponseBadRequest('Not a Int Paperid')
+
+    conn, cursor = Get_Conn_Paper()
+    cursor.execute(
+        'SELECT paper_id, title, year, journal_id, \
+        conference_series_id, volume, first_page, last_page\
+        from am_paper where paper_id = {}'.format(paperid)
+    )
+    Ans = cursor.fetchone()
+    if not Ans:
+        close_conn(conn, cursor)
+        return HttpResponseBadRequest('No Such Paper')
+
+    paper_id, title, year = Ans[0], Ans[1], Ans[2]
+    jourid, confid = Ans[3], Ans[4]
+    vol, fpage, lpage = Ans[5], Ans[6], Ans[7]
+    if confid != 0:
+        Conf = Get_Paper_Conf(confid, cursor)
+    if jourid != 0:
+        Jour = Get_Paper_Jour(jourid, cursor)
+
+    Auinfo = Get_Author_List(paperid, cursor)
+
+    Answer = """@article{ %s,
+    title = {%s},
+    author = {%s},
+    %s %s %s %s %s}""" % (
+        Generate_cite_name(title, year, Auinfo['author_name_list']),
+        title, ' and '.join(Auinfo['author_name_list']).replace('.', ' '),
+        'year = {{{}}},\n'.format(year) if year != 0 else '',
+        'booktitle = {{ {} }},\n'.format(
+            Conf['conference']
+        ) if confid != 0 else '',
+        'journal={{ {} }},\n'.format(
+            Jour['conference']
+        ) if jourid != 0 else '',
+        'volume={{{}}},\n'.format(vol) if vol != 0 else '',
+        'pages={{{}--{}}},\n'.format(fpage, lpage) if lpage != 0 else ''
+    )
+
+    close_conn(conn, cursor)
+    return JsonResponse({'bib': Answer})
+
+
+def Add_View_recoed(request):
+    Data = request.POST
+
+    if not Data or 'user_id' not in Data or 'paper_id' not in Data:
+        return JsonResponse({'stat': 0, 'Reason': "No Sufficient Data"})
+
+    user_id, paper_id_list = Data['user_id'], Data['paper_id']
+
+    for paper_id in paper_id_list:
+        Record.objects.create(paper_id=paper_id, user_id=user_id, rtype=1)
+
+    return JsonResponse({"stat": 1, "Reson": ""})
+

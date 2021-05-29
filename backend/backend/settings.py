@@ -92,7 +92,9 @@ DATABASES = {
         'HOST': '127.0.0.1',  # HOST
         'POST': 3306,  # 端口
         'OPTIONS': {
-            "init_command": "SET storage_engine=INNODB",
+            "init_command": "SET storage_engine=INNODB; \
+            SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4'
         },
     }
 }
