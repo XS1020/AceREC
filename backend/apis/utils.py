@@ -265,9 +265,47 @@ def Remote_to_Local(remote_ids):
         Ans = 1363061285
     return Ans
 
+
 def Local_to_Remote(Local_ids):
     if isinstance(Local_ids, Iterable):
         Ans = {}
     else:
         Ans = 1363061285
+    return Ans
+
+
+def Get_Person_Cite(person_id):
+    conn, cursor = Get_Conn_Paper()
+
+    cursor.execute(
+        'SELECT paper_id from am_paper_author\
+        where author_id = {}'.format(person_id)
+    )
+
+    Paperlist = []
+    for lin in cursor:
+        Paperlist.append(lin[0])
+
+    close_conn(conn, cursor)
+
+    conn, cursor = Get_Conn_Analysis()
+
+    cursor.execute(
+        'SELECT citation_trend from am_paper_analysis\
+        where paper_id in ({})'.format(','.json(str(x) for x in Paperlist))
+    )
+    Cite_tot = {}
+    for lin in cursor:
+        INFO = json.loads(lin[0])
+        for cite_cnt in INFO:
+            year, cnt = cite_cnt['year'], cite_cnt['citation_count']
+            Cite_tot[year] = Cite_tot.get(year, 0) + cnt
+
+    close_conn(conn, cursor)
+    Ans = []
+    for k, v in Cite_tot:
+        Ans.append({
+            'citation_count': v,
+            'year': k
+        })
     return Ans

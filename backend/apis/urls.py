@@ -9,6 +9,7 @@ from Front.views import Recomend_and_cite_Paper_Page
 from .views import Paper_Citation_Trend
 from .views import Paper_Keyword
 from .views import Paper_Page_Info
+from .views import Person_Cite_Trend
 
 urlpatterns = [
     path('CardInfo', Main_Page_Card_Info),
@@ -20,5 +21,6 @@ urlpatterns = [
     path('paperpagerec', Recomend_and_cite_Paper_Page),
     path('ctrend', Paper_Citation_Trend),
     path('paperkeyword', Paper_Keyword),
-    path('paperinfo', Paper_Page_Info)
+    path('paperinfo', Paper_Page_Info),
+    path('ptrend', Person_Cite_Trend)
 ]

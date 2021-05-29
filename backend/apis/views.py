@@ -16,7 +16,8 @@ from .utils import Get_Paper_Conf, Get_Paper_Jour, Get_Citation_Trend
 from .utils import Get_Author_List, Get_Paper_Citation
 from .utils import Get_Paper_Abstract, Get_Org_Url, Get_Paper_Doi
 from .utils import Get_Paper_Keyword, Get_Paper_Doi, Get_Org_Url
-from .utils import Remote_to_Local
+from .utils import Remote_to_Local, Local_to_Remote
+from .utils import Get_Person_Cite
 # Create your views here.
 
 
@@ -290,10 +291,20 @@ def Paper_Keyword(request):
 
     return JsonResponse({'keyword': keywords})
 
+
 def Person_Cite_Trend(request):
     Data = request.GET
 
     if not Data or 'local_id' not in Data:
         return HttpResponseBadRequest("No Such Person")
 
-    
+    try:
+        local_id = int(Data['local_id'])
+    except ValueError as e:
+        return HttpResponseNotAllowed("Not Int Local_id")
+
+    remote_id = Local_to_Remote(local_id)
+
+    Cite_trend = Get_Person_Cite(remote_id)
+    Cite_trend.sort(key=lambda x: x['year'])
+    return JsonResponse({'trend': Cite_trend})
