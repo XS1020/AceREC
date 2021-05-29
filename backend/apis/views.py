@@ -281,13 +281,39 @@ def Generate_Paper_bibtex(request):
 def Add_View_recoed(request):
     Data = request.POST
 
-    if not Data or 'user_id' not in Data or 'paper_id' not in Data:
+    if not Data or 'local_id' not in Data:
+        return JsonResponse({'stat': 0, 'Reason': "No Sufficient Data"})
+    if 'remote_id' not in Data or 'paper_id' not in Data:
         return JsonResponse({'stat': 0, 'Reason': "No Sufficient Data"})
 
-    user_id, paper_id_list = Data['user_id'], Data['paper_id']
+    paper_id_list = Data['paper_id']
+    local_id, remote_id = Data['local_id'], Data['remote_id']
 
     for paper_id in paper_id_list:
-        Record.objects.create(paper_id=paper_id, user_id=user_id, rtype=1)
+        Record.objects.create(
+            paper_id=paper_id, local_id=local_id,
+            remote_id=remote_id, rtype=1
+        )
 
     return JsonResponse({"stat": 1, "Reson": ""})
+
+
+def Add_Click_record(request):
+    Data = request.POST
+
+    if not Data or 'local_id' not in Data:
+        return JsonResponse({'stat': 0, 'Reason': "No Sufficient Data"})
+    if 'remote_id' not in Data or 'paper_id' not in Data:
+        return JsonResponse({'stat': 0, 'Reason': "No Sufficient Data"})
+
+    paper_id = Data['paper_id']
+    local_id, remote_id = Data['local_id'], Data['remote_id']
+
+    Record.objects.create(
+        paper_id=paper_id, local_id=local_id,
+        remote_id=remote_id, rtype=2
+    )
+
+    return JsonResponse({"stat": 1, "Reson": ""})
+
 
