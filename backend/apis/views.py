@@ -212,18 +212,6 @@ def Main_Page_Card_Info(request):
     return JsonResponse(dRes)
 
 
-def Paper_Url(request):
-    Data = request.GET
-    if not Data or 'paperid' not in Data:
-        return HttpResponseBadRequest('No \"paperid\" Found')
-    try:
-        paperid = int(Data['paperid'])
-    except ValueError as e:
-        return HttpResponseBadRequest('Not Int Paperid')
-
-    return JsonResponse(Get_Org_Url(paperid))
-
-
 def Generate_cite_name(title, year, author_name_list):
     title_part = title.split()[0]
     year_part = str(year)
@@ -287,3 +275,12 @@ def Generate_Paper_bibtex(request):
 
     close_conn(conn, cursor)
     return JsonResponse({'bib': Answer})
+
+def Add_View_recoed(request):
+    Data = request.GET
+
+    if not Data or 'userid' not in Data or 'paperid' not in Data:
+        return HttpResponseBadRequest("No Sufficient Data")
+
+    
+
