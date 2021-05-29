@@ -8,7 +8,7 @@ from django.db import models
 
 class User_Info(models.Model):
     local_id = models.IntegerField(primary_key=True)
-    remote_id = models.BigIntegerField(unique=True)
+    remote_id = models.BigIntegerField(unique=True, default=-1)
     name = models.CharField(max_length=30, db_index=True)
     user_name = models.CharField(max_length=30, unique=True)
     affiliation = models.CharField(max_length=50)
@@ -18,23 +18,23 @@ class User_Info(models.Model):
 
 class User_Edu(models.Model):
     local_id = models.IntegerField(db_index=True)
-    remote_id = models.BigIntegerField(db_index=True)
-    year = models.IntegerField()
+    remote_id = models.BigIntegerField(db_index=True, default=-1)
+    year = models.IntegerField(default=-5000)
     action = models.CharField(max_length=20)
     institute = models.CharField(max_length=50)
     department = models.CharField(max_length=80)
 
 class User_Work(models.Model):
     local_id = models.IntegerField(db_index=True)
-    remote_id = models.BigIntegerField(db_index=True)
-    year = models.IntegerField()
+    remote_id = models.BigIntegerField(db_index=True, default=-1)
+    year = models.IntegerField(default=-5000)
     action = models.CharField(max_length=20)
     institute = models.CharField(max_length=50)
     department = models.CharField(max_length=80)
 
 class User_Interest(models.Model):
     local_id = models.IntegerField(db_index=True)
-    remote_id = models.BigIntegerField(db_index=True)
+    remote_id = models.BigIntegerField(db_index=True, default=-1)
     interest_field = models.IntegerField()
 
 class User_Token(models.Model):
@@ -43,5 +43,5 @@ class User_Token(models.Model):
 
 class User_Papers(models.Model):
     local_id = models.IntegerField(db_index=True)
-    remote_id = models.BigIntegerField(db_index=True)
+    remote_id = models.BigIntegerField(db_index=True, default=-1)
     paper_id = models.BigIntegerField(db_index=True)
