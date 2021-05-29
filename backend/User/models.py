@@ -12,7 +12,7 @@ class User_Info(models.Model):
     name = models.CharField(max_length=30, db_index=True)
     user_name = models.CharField(max_length=30, unique=True)
     affiliation = models.CharField(max_length=50)
-    research_list = models.CharField(max_length=200)
+    research_list = models.CharField(max_length=800)
     password = models.CharField(max_length=50)
     paper_num = models.IntegerField()
 
@@ -20,16 +20,16 @@ class User_Edu(models.Model):
     local_id = models.IntegerField(db_index=True)
     remote_id = models.BigIntegerField(db_index=True, default=-1)
     year = models.IntegerField(default=-5000)
-    action = models.CharField(max_length=20)
-    institute = models.CharField(max_length=50)
+    action = models.CharField(max_length=100)
+    institute = models.CharField(max_length=100)
     department = models.CharField(max_length=80)
 
 class User_Work(models.Model):
     local_id = models.IntegerField(db_index=True)
     remote_id = models.BigIntegerField(db_index=True, default=-1)
     year = models.IntegerField(default=-5000)
-    action = models.CharField(max_length=20)
-    institute = models.CharField(max_length=50)
+    action = models.CharField(max_length=100)
+    institute = models.CharField(max_length=100)
     department = models.CharField(max_length=80)
 
 class User_Interest(models.Model):
