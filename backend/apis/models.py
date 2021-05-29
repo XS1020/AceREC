@@ -16,7 +16,8 @@ class Recom_Data(models.Model):
 class Record(models.Model):
     updated_time = models.DateTimeField(auto_now=True)
     paper_id = models.BigIntegerField(db_index=True)
-    user_id = models.BigIntegerField(db_index=True)
+    local_id = models.IntegerField(db_index=True)
+    remote_id = models.BigIntegerField(db_index=True)
 
     rectypes = (
         (1, 'view'),
