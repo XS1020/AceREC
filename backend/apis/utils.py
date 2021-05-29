@@ -1,6 +1,7 @@
 import MySQLdb
 import MySQLdb.cursors
 import datetime
+import json
 
 
 def Get_Conn_Paper():
@@ -121,6 +122,7 @@ def Get_Paper_Abstract(paperid, cursor=None):
     if cursor is None:
         conn, cursor = Get_Conn_Paper()
         Flag = True
+
     cursor.execute(
         'SELECT abstract from am_paper_abstract \
         where paper_id = {}'.format(paperid)
@@ -136,6 +138,7 @@ def Get_Paper_Citation(paperid, cursor=None):
     if cursor is None:
         conn, cursor = Get_Conn_Analysis()
         Flag = True
+
     cursor.execute(
         'SELECT citation_count from am_paper_analysis \
          where paper_id = {}'.format(paperid)
@@ -152,6 +155,7 @@ def Get_Org_Url(paperid, cursor=None):
     if cursor is None:
         conn, cursor = Get_Conn_Paper()
         Flag = True
+
     cursor.execute(
         'SELECT paper_id, type, source_url from am_paper_url \
          where paper_id = {}'.format(paperid)
@@ -176,7 +180,9 @@ def Get_Org_Url(paperid, cursor=None):
 def Get_Paper_Doi(paperid, cursor=None):
     Flag = False
     if cursor is None:
-        cursor, conn = Get_Conn_Paper()
+        conn, cursor = Get_Conn_Paper()
+        Flag = True
+
     cursor.execute(
         'SELECT paper_id, doi from am_paper\
         where paper_id = {}'.format(paperid)
@@ -190,7 +196,7 @@ def Get_Paper_Doi(paperid, cursor=None):
 def Get_Paper_Ref(paperid, cursor=None):
     Flag = False
     if cursor is None:
-        cursor, conn = Get_Conn_Paper()
+        (conn, cursor), Flag = Get_Conn_Paper(), True
 
     cursor.execute(
         'SELECT paper_id, reference_id from \
@@ -203,3 +209,21 @@ def Get_Paper_Ref(paperid, cursor=None):
         close_conn(conn, cursor)
 
     return None if Reflist == [] else {'Ref': Reflist}
+
+
+def Get_Citation_Trend(paperid, cursor=None):
+    Flag = False
+    if cursor is None:
+        conn, cursor = Get_Conn_Analysis()
+        Flag = True
+
+    cursor.execute(
+        'SELECT citation_trend from am_paper_analysis \
+        where paper_id = {}'.format(paperid)
+    )
+
+    ctrend = cursor.fetchone()
+
+    if Flag:
+        close_conn(conn, cursor)
+    return [] if not ctrend else json.loads(ctrend[0])

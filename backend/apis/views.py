@@ -11,7 +11,7 @@ import MySQLdb.cursors
 import datetime
 from .utils import Get_Conn_Paper, Get_Conn_Analysis, close_conn
 from .models import Record
-from .utils import Get_Paper_Conf, Get_Paper_Jour
+from .utils import Get_Paper_Conf, Get_Paper_Jour, Get_Citation_Trend
 from .utils import Get_Author_List, Get_Paper_Citation
 from .utils import Get_Paper_Abstract, Get_Org_Url, Get_Paper_Doi
 # Create your views here.
@@ -192,3 +192,19 @@ def Add_Click_record(request):
     )
 
     return JsonResponse({"stat": 1, "Reson": ""})
+
+
+def Paper_Citation_Trend(request):
+    Data = request.GET
+
+    if not Data or 'paperid' not in Data:
+        return HttpResponseBadRequest("No PaperId Found")
+
+    try:
+        paperid = int(Data['paperid'])
+    except ValueError as e:
+        return HttpResponseNotAllowed('Not a Int Paperid')
+
+    Cite_trend = Get_Citation_Trend(paperid)
+
+    return JsonResponse({'cite_trend': Cite_trend})
