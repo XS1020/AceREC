@@ -8,6 +8,7 @@ from .views import Add_Click_record
 from Front.views import Recomend_and_cite_Paper_Page
 from .views import Paper_Citation_Trend
 from .views import Paper_Keyword
+from .views import Paper_Page_Info
 
 urlpatterns = [
     path('CardInfo', Main_Page_Card_Info),
@@ -18,5 +19,6 @@ urlpatterns = [
     path('clickrecord', Add_Click_record),
     path('paperpagerec', Recomend_and_cite_Paper_Page),
     path('ctrend', Paper_Citation_Trend),
-    path('paperkeyword', Paper_Keyword)
+    path('paperkeyword', Paper_Keyword),
+    path('paperinfo', Paper_Page_Info)
 ]

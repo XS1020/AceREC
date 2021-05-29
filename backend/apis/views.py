@@ -5,6 +5,7 @@ from django.http import HttpResponseBadRequest
 from django.http import HttpResponseNotAllowed
 import os
 from Const_Var import Paper_Pdf_Mapping
+from Const_Var import Author_Subset
 from backend.settings import STATICFILES_DIRS
 import MySQLdb
 import MySQLdb.cursors
@@ -225,7 +226,47 @@ def Paper_Page_Info(request):
 
     conn, cursor = Get_Conn_Paper()
 
+    cursor.execute(
+        'SELECT title, doi, year from am_paper\
+        where paper_id = {}'.format(paperid)
+    )
+
+    BasInfo = cursor.fetchone()
+
+    if not BasInfo:
+        close_conn(conn, cursor)
+        return HttpResponseBadRequest("No Such Paper")
+
+    title, doi, year = BasInfo
+    DAns = {'title': title, 'doi': doi, year: 'year'}
+
+    DAns['imgurl'] = ''
+    imgdir = os.path.join(STATICFILES_DIRS[0], 'pdf_img')
+    if str(paperid) in Paper_Pdf_Mapping:
+        imgname = Paper_Pdf_Mapping[str(paperid)]
+        imgname = imgname[:-3] + 'png'
+        if os.path.exists(os.path.join(imgdir, imgname)):
+            DAns['imgurl'] = '{}://{}/static/pdf_img/{}'.format(
+                request.scheme, request.get_host(), imgname
+            )
+
+    DAns['citation_count'] = 0
+    DAns.update(Get_Paper_Citation(paperid))
+    DAns['abstract'] = ''
+    Abs = Get_Paper_Abstract(paperid, cursor)
+    if Abs:
+        DAns.update(Abs)
+    Author_Info = Get_Author_List(paperid, cursor)
+    DAns['Authors'] = []
+    for i, name in enumerate(Author_Info['author_name_list']):
+        remote_id = Author_Info['author_id_list'][i]
+        DAns['Authors'].append({
+            'name': name, 'remote_id': remote_id,
+            'clickable': 1 if remote_id in Author_Subset else 0
+        })
+
     close_conn(conn, cursor)
+    return JsonResponse(DAns)
 
 
 def Paper_Keyword(request):
