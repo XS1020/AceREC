@@ -64,11 +64,11 @@ def Search(request):
 
 def Recomend_and_cite_Paper_Page(request):
     Data = request.GET
-    if not Data or 'paper_id' not in Data:
+    if not Data or 'paperid' not in Data:
         return HttpResponseBadRequest("No \"paperid\" Found")
 
     try:
-        paperid = int(Data['paper_id'])
+        paperid = int(Data['paperid'])
     except ValueError as e:
         return HttpResponseNotAllowed("Not Int paperid")
 

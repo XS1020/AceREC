@@ -293,7 +293,7 @@ def Person_Cite_Trend(request):
     Data = request.GET
 
     if not Data or 'local_id' not in Data:
-        return HttpResponseBadRequest("No Such Person")
+        return HttpResponseBadRequest("No local_id Found")
 
     try:
         local_id = int(Data['local_id'])
@@ -301,6 +301,8 @@ def Person_Cite_Trend(request):
         return HttpResponseNotAllowed("Not Int Local_id")
 
     remote_id = Local_to_Remote(local_id)
+    if remote_id < 0:
+        return HttpResponseBadRequest("No Such Person")
 
     Cite_trend = Get_Person_Cite(remote_id)
     Cite_trend.sort(key=lambda x: x['year'])

@@ -258,19 +258,25 @@ def Get_Paper_Keyword(
 
 def Remote_to_Local(remote_ids):
     if isinstance(remote_ids, Iterable):
-        Ans = {}
-        for ids in remote_ids:
-            Ans[ids] = 1
+        Ans = {x: -1 for x in remote_ids}
+        auser = User_Info.objects.filter(remote_id__in=list(remote_ids))
+        for lin in auser:
+            Ans[lin.remote_id] = lin.local_id
     else:
-        Ans = 1363061285
+        auser = User_Info.objects.filter(remote_id=remote_ids)
+        Ans = -1 if len(auser) < 1 else auser[0].local_id
     return Ans
 
 
 def Local_to_Remote(Local_ids):
     if isinstance(Local_ids, Iterable):
-        Ans = {}
+        Ans = {x: -1 for x in Local_ids}
+        auser = User_Info.objects.filter(local_id__in=list(Local_ids))
+        for lin in auser:
+            Ans[lin.local_id] = lin.remote_id
     else:
-        Ans = 1363061285
+        auser = User_Info.objects.filter(local_id=Local_ids)
+        Ans = -1 if len(auser) < 1 else auser[0].remote_id
     return Ans
 
 
