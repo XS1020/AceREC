@@ -1,3 +1,4 @@
+import os
 import time
 import datetime
 import hashlib
@@ -5,10 +6,11 @@ import hashlib
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import HttpResponseBadRequest
-from django.core import signing
+import pygame
 from pypinyin import lazy_pinyin
 
 from . import models
+from backend.settings import STATICFILES_DIRS
 
 
 # CONSTANTS
@@ -82,5 +84,20 @@ def get_user_info(request):
     research_list = research_list.split("_")
     info['research_list'] = research_list
     info['paper_num'] = u.paper_num
+
+    # generate avatar
+    avatar_dir = os.path.join(STATICFILES_DIRS[0], 'avatar')
+    avatar_name = '{}.png'.format(local_id)
+    avatar_path = os.path.join(avatar_dir, avatar_name)
+
+    chr = pin_name[0].upper()
+    pygame.init()
+    font = pygame.font.Font(os.path.join(avatar_dir, "msyh.ttc"), 64)
+    rtext = font.render(chr, True, (0, 0, 0), (255, 255, 255))
+    pygame.image.save(rtext, avatar_path)
+
+    info['avatar_url'] = '{}://{}/static/avatar/{}'.format(
+        request.scheme, request.get_host(), avatar_name
+    )
 
     return JsonResponse(info)
