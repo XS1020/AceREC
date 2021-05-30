@@ -12,7 +12,7 @@ class User_Info(models.Model):
     name = models.CharField(max_length=30, db_index=True)
     user_name = models.CharField(max_length=30, unique=True)
     affiliation = models.CharField(max_length=50)
-    research_list = models.CharField(max_length=800)
+    research_list = models.CharField(max_length=1000)
     password = models.CharField(max_length=50)
     paper_num = models.IntegerField()
 
