@@ -336,6 +336,10 @@ def Cite_Card_Info(request):
     Author_Info = Get_Author_List(paperid, cursor)
     Dans.update(Author_Info)
 
+    Tags = Get_Paper_Keyword(paperid, cursor=cursor)
+    Tags.sort(key=lambda x: -x['level'])
+    Dans['tags'] = [x['keyword'] for x in Tags if x['level'] > 1]
+
     close_conn(conn, cursor)
 
     Dans['imgurl'] = Cover_Url(request, paperid)

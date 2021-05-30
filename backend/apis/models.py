@@ -7,10 +7,20 @@ class Recom_Data(models.Model):
     updated_time = models.DateTimeField(auto_now=True)
     paper_id = models.BigIntegerField(db_index=True, unique=True)
     belong = models.IntegerField(db_index=True)
-    embedding = models.CharField(default='', max_length=4096)
 
     class Meta:
         ordering = ['belong']
+
+class Embedding(models.Model):
+    paper_id = models.BigIntegerField(db_index=True)
+    updated_time = models.DateTimeField(auto_now=True)
+    Index = models.SmallIntegerField()
+    Embnum = models.FloatField(default=0)
+
+    class Meta:
+        ordering = ['paper_id', 'Index']
+
+
 
 
 class Record(models.Model):
