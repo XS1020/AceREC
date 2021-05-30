@@ -173,13 +173,16 @@ def Add_View_recoed(request):
     except ValueError as e:
         return HttpResponseNotAllowed("Not Int Ids")
 
+    if local_id < 0:
+        return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
+
     for paper_id in paper_id_list:
         Record.objects.create(
             paper_id=paper_id, local_id=local_id,
             remote_id=remote_id, rtype=1
         )
 
-    return JsonResponse({"stat": 1, "Reson": ""})
+    return JsonResponse({"stat": 1, "Reason": ""})
 
 
 def Add_Click_record(request):
@@ -195,12 +198,15 @@ def Add_Click_record(request):
     except ValueError as e:
         return HttpResponseNotAllowed("Not Int Ids")
 
+    if local_id < 0:
+        return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
+
     Record.objects.create(
         paper_id=paper_id, local_id=local_id,
         remote_id=remote_id, rtype=2
     )
 
-    return JsonResponse({"stat": 1, "Reson": ""})
+    return JsonResponse({"stat": 1, "Reason": ""})
 
 
 def Paper_Citation_Trend(request):
