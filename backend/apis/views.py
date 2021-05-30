@@ -17,7 +17,7 @@ from .utils import Get_Author_List, Get_Paper_Citation
 from .utils import Get_Paper_Abstract, Get_Org_Url, Get_Paper_Doi
 from .utils import Get_Paper_Keyword, Get_Paper_Doi, Get_Org_Url
 from .utils import Remote_to_Local, Local_to_Remote
-from .utils import Get_Person_Cite
+from .utils import Get_Person_Cite, Get_Related_Authors
 # Create your views here.
 
 
@@ -345,3 +345,31 @@ def Cite_Card_Info(request):
     Dans['imgurl'] = Cover_Url(request, paperid)
 
     return JsonResponse(Dans)
+
+
+def Related_Author(request):
+    Data = request.GET
+
+    if not Data or 'local_id' not in Data:
+        return HttpResponseBadRequest("No Author Id")
+
+    try:
+        local_id = int(Data['local_id'])
+    except ValueError as e:
+        return HttpResponseNotAllowed("Not Int Local_id")
+    remote_id = Local_to_Remote(local_id)
+    if remote_id < 0:
+        return JsonResponse({'Related': []})
+    Rel_Aut_cnt = Get_Related_Authors(remote_id)
+    Cans = list(Rel_Aut_cnt.keys())
+    Cans.sort(key=lambda x: -Rel_Aut_cnt[x])
+
+    Ans = []
+    Loc_id = Remote_to_Local(Cans)
+    for remid in Cans[:4]:
+        Ans.append({
+            'remote_id': remid, 'local_id': Loc_id[remid],
+            'clickable': 1 if remid in Author_Subset else 0
+        })
+
+    return JsonResponse({"Related": Ans})

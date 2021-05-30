@@ -315,3 +315,28 @@ def Get_Person_Cite(person_id):
             'year': k
         })
     return Ans
+
+
+def Get_Related_Authors(author_id, cursor=None):
+    Flag = False
+    if cursor is None:
+        conn, cursor = Get_Conn_Paper()
+        Flag = True
+
+    cursor.execute(
+        'SELECT am_paper_author.author_id from (\
+            SELECT paper_id, year FROM am_paper WHERE paper_id in (\
+                SELECT paper_id FROM am_paper_author WHERE author_id = {}\
+            ) ORDER BY `year` DESC LIMIT 10\
+        ) as taf JOIN am_paper_author ON \
+        taf.paper_id = am_paper_author.paper_id'.format(author_id)
+    )
+
+    Count = {}
+    for lin in cursor:
+        Count[lin[0]] = Count.get(lin[0], 0) + 1
+
+    if Flag:
+        close_conn(conn, cursor)
+
+    return Count
