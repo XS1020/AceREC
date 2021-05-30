@@ -90,10 +90,10 @@ def get_user_info(request):
     avatar_name = '{}.png'.format(local_id)
     avatar_path = os.path.join(avatar_dir, avatar_name)
 
-    chr = pin_name[0].upper()
+    chr = pin_name[0][0].upper()
     pygame.init()
-    font = pygame.font.Font(os.path.join(avatar_dir, "msyh.ttc"), 64)
-    rtext = font.render(chr, True, (0, 0, 0), (255, 255, 255))
+    font = pygame.font.Font(os.path.join(avatar_dir, "font", "msyh.ttc"), 64)
+    rtext = font.render(chr, True, (147, 112, 219), (255, 255, 255))
     pygame.image.save(rtext, avatar_path)
 
     info['avatar_url'] = '{}://{}/static/avatar/{}'.format(
