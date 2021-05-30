@@ -39,7 +39,8 @@ class User_Interest(models.Model):
 
 class User_Token(models.Model):
     local_id = models.IntegerField(primary_key=True)
-    token = models.CharField(max_length=100)
+    token = models.CharField(max_length=1000)
+    update_time = models.BigIntegerField()
 
 class User_Papers(models.Model):
     local_id = models.IntegerField(db_index=True)
