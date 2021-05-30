@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import HttpResponseBadRequest
 from django.core import signing
+from pypinyin import lazy_pinyin
 
 from . import models
 
@@ -21,7 +22,7 @@ def generate_token(name, t):
     return token
 
 def user_login(request):
-    req = request.GET()
+    req = request.GET
 
     if not req:
         return HttpResponseBadRequest('No Information!')
@@ -34,8 +35,10 @@ def user_login(request):
     if pwd is None:
         return HttpResponseBadRequest('Please enter the password!')
 
-    # should use try here
-    u = models.User_Info.objects.get(user_name=u_name)
+    try:
+        u = models.User_Info.objects.get(user_name=u_name)
+    except models.User_Info.DoesNotExist:
+        return HttpResponseBadRequest('No such user!')
 
     info = dict()
     if u.password == pwd:
@@ -52,4 +55,32 @@ def user_login(request):
         info['local_id'] = -1
         info['remote_id'] = -1
         info['token'] = -1
+    return JsonResponse(info)
+
+def get_user_info(request):
+    req = request.GET
+
+    if not req:
+        return HttpResponseBadRequest('No Information!')
+
+    local_id = req.get('local_id', None)
+
+    if local_id is None:
+        return HttpResponseBadRequest('Need local ID!')
+
+    try:
+        u = models.User_Info.objects.get(local_id=local_id)
+    except models.User_Info.DoesNotExist:
+        return HttpResponseBadRequest('No such user!')
+
+    info = dict()
+    info['name'] = u.name
+    pin_name = lazy_pinyin(u.name)
+    info['pinyin'] = pin_name
+    info['affiliation'] = u.affiliation
+    research_list = u.research_list
+    research_list = research_list.split("_")
+    info['research_list'] = research_list
+    info['paper_num'] = u.paper_num
+
     return JsonResponse(info)
