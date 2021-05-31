@@ -92,7 +92,9 @@ DATABASES = {
         'HOST': '127.0.0.1',  # HOST
         'POST': 3306,  # 端口
         'OPTIONS': {
-            "init_command": "SET storage_engine=INNODB",
+            "init_command": "SET storage_engine=INNODB; \
+            SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4'
         },
     }
 }
@@ -122,13 +124,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
