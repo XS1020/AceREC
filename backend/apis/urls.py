@@ -12,6 +12,7 @@ from .views import Paper_Page_Info
 from .views import Person_Cite_Trend
 from .views import Cite_Card_Info
 from .views import Related_Author
+from .views import Get_Person_Cite_Count
 
 urlpatterns = [
     path('CardInfo', Main_Page_Card_Info),
@@ -26,5 +27,6 @@ urlpatterns = [
     path('paperinfo', Paper_Page_Info),
     path('ptrend', Person_Cite_Trend),
     path('citecardinfo', Cite_Card_Info),
-    path('relatedauthor', Related_Author)
+    path('relatedauthor', Related_Author),
+    path('authorcitecount', Get_Person_Cite_Count)
 ]

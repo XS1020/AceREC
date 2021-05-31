@@ -340,3 +340,22 @@ def Get_Related_Authors(author_id, cursor=None):
         close_conn(conn, cursor)
 
     return Count
+
+
+def Get_Person_Cite_Count(personid):
+    conn, cursor = Get_Conn_Paper()
+    cursor.execute(
+        'SELECT paper_id from am_paper_author \
+        where author_id = {}'.format(personid)
+    )
+    paper_id_list = [lin[0] for lin in cursor]
+    close_conn(conn, cursor)
+
+    conn, cursor = Get_Conn_Analysis()
+    cursor.execute(
+        'SELECT SUM(citation_count) from am_paper_analysis where \
+        paper_id in ({})'.format(','.join(str(x) for x in paper_id_list))
+    )
+    Ans = cursor.fetchone()[0]
+    close_conn(conn, cursor)
+    return Ans

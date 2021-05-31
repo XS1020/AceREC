@@ -18,6 +18,7 @@ from .utils import Get_Paper_Abstract, Get_Org_Url, Get_Paper_Doi
 from .utils import Get_Paper_Keyword, Get_Paper_Doi, Get_Org_Url
 from .utils import Remote_to_Local, Local_to_Remote
 from .utils import Get_Person_Cite, Get_Related_Authors
+from .utils import Get_Person_Cite_Count
 # Create your views here.
 
 
@@ -379,3 +380,18 @@ def Related_Author(request):
         })
 
     return JsonResponse({"Related": Ans})
+
+
+def Author_Cite_Count(request):
+    Data = request.GET
+    if not Data or 'local_id' not in Data:
+        return HttpResponseBadRequest('No Locai id')
+
+    try:
+        local_id = int(Data['local_id'])
+    except ValueError as e:
+        return HttpResponseNotAllowed('Not Int Id')
+
+    remote_id = Local_to_Remote(local_id)
+    Ans = Get_Person_Cite_Count(remote_id)
+    return JsonResponse({"citation_count": Ans})
