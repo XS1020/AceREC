@@ -186,14 +186,11 @@ def Add_View_recoed(request):
 
     Token = request.META.get('HTTP_TOKEN', "")
 
-    print("Token:", Token)
     
     Obj = User_Token.objects.filter(local_id=local_id)
     if len(Obj) == 0 or Token != Obj[0].token:
         return HttpResponse('Unauthorlized', status=401)
 
-    x = time.time()
-    print(x, Obj[0].update_time, x - Obj[0].update_time)
 
     if time.time() - Obj[0].update_time > LOGIN_TIME_OUT:
         return HttpResponse('Unauthorlized', status=401)
