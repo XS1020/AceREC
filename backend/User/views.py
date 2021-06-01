@@ -5,6 +5,7 @@ import hashlib
 
 import django
 from django.shortcuts import render
+from django.http import HttpResponse
 from django.http import JsonResponse
 from django.http import HttpResponseBadRequest
 import pygame
@@ -42,7 +43,7 @@ def user_login(request):
     try:
         u = models.User_Info.objects.get(user_name=u_name)
     except models.User_Info.DoesNotExist:
-        return HttpResponseBadRequest('No such user!')
+        return HttpResponse('User name or password wrong!', status=401)
 
     info = dict()
     if u.password == pwd:
@@ -57,10 +58,7 @@ def user_login(request):
         info['token'] = token
         info['user_name'] = u.user_name
     else:
-        info['local_id'] = -1
-        info['remote_id'] = -1
-        info['token'] = -1
-        info['user_name'] = ''
+        return HttpResponse('User name or password wrong!', status=401)
     return JsonResponse(info)
 
 def user_signup(request):
@@ -112,6 +110,7 @@ def user_signup(request):
     info['local_id'] = local_id
     info['remote_id'] = -1
     info['token'] = token
+    info['user_name'] = u_name
 
     return JsonResponse(info)
 
