@@ -28,6 +28,7 @@ def ReQuery(field):
         )
         for lin in cursor:
             Cite_cnt[lin[0]] = lin[1]
+    close_conn(conn, cursor)
     Curr_year = datetime.datetime.now().year
     paper_info_list.sort(
         key=lambda x: -Cite_cnt.get(x['paper_id'], 0)
