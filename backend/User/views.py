@@ -69,16 +69,19 @@ def user_signup(request):
 
     u_name = req.get('user_name', None)
     pwd = req.get('password', None)
+    affiliation = req.get('affiliation', None)
 
     if u_name is None:
         return HttpResponseBadRequest('Need user name!')
     if pwd is None:
         return HttpResponseBadRequest('Need password!')
+    if affiliation is None:
+        return HttpResponseBadRequest('Need affiliation!')
 
     # check the uniqueness of the name
     tmp = models.User_Info.objects.filter(user_name=u_name)
     if len(tmp) > 0:
-        return HttpResponseBadRequest('User name already exist!')
+        return HttpResponse('User name already exist!', status=405)
 
     # generate local_id
     # local_id = models.User_Info.objects.count()
@@ -92,7 +95,7 @@ def user_signup(request):
             remote_id=-1,
             name='',
             user_name=u_name,
-            affiliation='',
+            affiliation=affiliation,
             research_list='',
             password=pwd,
             paper_num=0
