@@ -385,7 +385,7 @@ def Related_Author(request):
 def Author_Cite_Count(request):
     Data = request.GET
     if not Data or 'local_id' not in Data:
-        return HttpResponseBadRequest('No Locai id')
+        return HttpResponseBadRequest('No Local id')
 
     try:
         local_id = int(Data['local_id'])
@@ -394,4 +394,15 @@ def Author_Cite_Count(request):
 
     remote_id = Local_to_Remote(local_id)
     Ans = Get_Person_Cite_Count(remote_id)
-    return JsonResponse({"citation_count": Ans})
+    if not Ans:
+        return JsonResponse({
+            'citation_count': 0,
+            'paper_count': 0,
+            'h_index': 0
+        })
+    else:
+        return JsonResponse({
+            "citation_count": Ans[0],
+            'paper_count': Ans[1],
+            'h_index': Ans[2]
+        })
