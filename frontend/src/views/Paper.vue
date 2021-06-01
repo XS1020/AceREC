@@ -27,7 +27,7 @@
         <div class="left-bar">
           <div>
             <h2> Cited Trend </h2>
-            <svg ref="cited-trend" class="chart"></svg>
+            <div ref="cited-trend" class="chart" style="height: 200px"></div>
           </div>
           <div>
             <h2> Keywords </h2>
@@ -38,7 +38,8 @@
           <div>
             <h2> Related Papers </h2>
             <ViewOptions
-                :options="[{text: 'Reference', to: '/paper/cited'}, {text: 'Recommend', to: '/paper/recommend'}]"/>
+                :options="[{text: 'Reference', to: '/paper/' +this.paperId+'/cited'},
+                {text: 'Recommend', to: '/paper/' + this.paperId +'/recommend'}]"/>
             <keep-alive>
               <router-view :related-papers="relatedPapers" :genre="genre" :key="genre"></router-view>
             </keep-alive>
@@ -50,7 +51,7 @@
 </template>
 
 <script>
-import LineChart from "@/utils/LineChart";
+import renderLineChart from "@/utils/ECharts-LineChart";
 import Cloud from "@/utils/Cloud";
 import ImageNotLoaded from "@/components/ImageNotLoaded";
 import ViewOptions from "@/components/ViewOptions";
@@ -58,10 +59,19 @@ export default {
   name: "Paper",
   components: {ViewOptions, ImageNotLoaded},
   created() {
+    this.paperId = this.$route.params.id
+    let param = new URLSearchParams()
+    param.append('paper_id', this.paperId)
+    param.append('local_id', this.$store.state.localId)
+    this.$http({
+      method: "post",
+      url: "/api/clickrecord",
+      data: param
+    }).then(res => {})
     this.$http({
       url: "/api/paperpagerec",
       params: {
-        paperid: 173
+        paperid: this.paperId
       }
     }).then(res => {
       this.relatedPapers = JSON.parse(JSON.stringify(res.data))
@@ -70,7 +80,7 @@ export default {
     this.$http({
       url: "/api/paperinfo",
       params: {
-        paperid: 473532210
+        paperid: this.paperId
       }
     }).then(res => {
       const data = res.data
@@ -92,7 +102,7 @@ export default {
     this.$http({
       url: "/api/ctrend",
       params: {
-        paperid: 565
+        paperid: this.paperId
       }
     }).then(res => {
       let i = 0
@@ -107,7 +117,7 @@ export default {
     this.$http({
       url: "/api/paperkeyword",
       params: {
-        paperid: 565
+        paperid: this.paperId
       }
     }).then(res => {
       let i = 0
@@ -130,7 +140,8 @@ export default {
       authors: [],
       abstract: "",
       source: "",
-      relatedPapers: {}
+      relatedPapers: {},
+      paperId: 0
     }
   },
   methods: {
@@ -140,21 +151,21 @@ export default {
 
     mountCitedTrend () {
       const svg = this.$refs["cited-trend"]
-      const chart = new LineChart({
-        target: svg,
-        width: 320,
-        height: 200,
-        xTicks: 3,
-        yTicks: 3
-      })
+      // const chart = new LineChart({
+      //   target: svg,
+      //   width: 320,
+      //   height: 200,
+      //   xTicks: 3,
+      //   yTicks: 3
+      // })
       const newData = JSON.parse(JSON.stringify(this.citeTrend))
       const svgData = []
       for (const item of newData) {
         const {citation_count, year} = item
         svgData.push({time: year, value: citation_count})
       }
-      chart.render(svgData)
-
+      // chart.render(svgData)
+    renderLineChart(svg, svgData)
     },
     mountWordCloud () {
       const keyWords = JSON.parse(JSON.stringify(this.keyWords))

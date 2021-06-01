@@ -15,7 +15,7 @@
             </ul>
             <p> {{desc}} </p>
           </div>
-          <a class="view-detail" @click="jumpToDetail"> View Detail<i class="fa fa-angle-right"/> </a>
+          <a class="view-detail" @click="jumpToDetail(srcPath)"> View Detail<i class="fa fa-angle-right"/> </a>
         </div>
 <!--        <div class="paper-display-bottom" v-if="loaded">-->
 <!--          <ul class="paper-display-viewers clearfix">-->
@@ -63,9 +63,8 @@ export default {
     }
   },
   methods: {
-    jumpToDetail () {
-      // console.log("in");
-      // this.$router.addRoute("/home/index")
+    jumpToDetail (paperId) {
+      this.$router.push("/paper/" + paperId)
     }
   }
 }

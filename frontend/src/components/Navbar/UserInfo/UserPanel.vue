@@ -23,7 +23,8 @@ export default {
   props: ['show'],
   methods: {
     signOut () {
-      this.$store.state.login = false;
+      this.$store.commit('logout')
+      this.$router.push("/signin")
     }
   }
 }

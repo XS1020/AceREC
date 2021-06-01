@@ -1,28 +1,42 @@
 <template>
   <div class="related-scholar">
     <h2> Related Scholars </h2>
-    <span> 22 </span>
+    <span> {{relatedScholars.length}} </span>
     <div class="scholar-list">
-      <div v-for="i in 4">
-        <img src="../../assets/avatar.webp" alt="">
-        <div class="scholar-info-container">
-          Hori Miona
-          <span> Front End@Microsoft </span>
-        </div>
-      </div>
+      <RelatedScholar v-for="scholar in relatedScholars" :userId="scholar"/>
     </div>
   </div>
 </template>
 
 <script>
+import RelatedScholar from "@/components/UserProfile/RelatedScholar";
 export default {
-  name: "RelatedScholars"
+  name: "RelatedScholars",
+  components: {RelatedScholar},
+  props: ['localId'],
+  created() {
+    this.$http({
+      url: "/user/user_related_authors",
+      params: {
+        local_id: this.localId
+      }
+    }).then(res => {
+      const data = res.data
+      this.relatedScholars = JSON.parse(JSON.stringify(res.data.related_authors))
+    })
+  },
+  data () {
+    return {
+      relatedScholars: []
+    }
+  }
 }
 </script>
 
 <style lang="less">
 @import "../../assets/css/baseStyle";
 .related-scholar {
+  min-height: 250px;
   h2 {
     display: inline-block;
     font-size: 20px;
@@ -47,16 +61,29 @@ export default {
     justify-content: flex-start;
     padding: 10px;
     position: relative;
+    border-radius: 10px;
+    transition: all 0.3s;
+    &:hover {
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      &:after, &:before {
+        position: absolute;
+        top: 20%;
+        width: 4px;
+        content: "";
+        background-color: mediumpurple;
+        height: 60%;
+      }
+      &:before{
+        left: 0;
+      }
+      &:after{
+        right: 0;
+      }
+    }
     & > img {
       .avatar-small();
-    }
-    &:hover:after {
-      content: "\f054";
-      font: normal normal normal 14px/1 FontAwesome;
-      position: absolute;
-      right: 80px;
-      top: 50%;
-      transform: translateY(-50%);
+      object-fit: contain;
+      border: 3px solid mediumpurple;
     }
     .scholar-info-container {
       margin: 10px 20px;

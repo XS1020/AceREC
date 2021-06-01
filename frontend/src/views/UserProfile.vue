@@ -12,19 +12,25 @@
 <!--        </div>-->
       </div>
       <div class="profile-right-box">
-        <RelatedScholars/>
+        <RelatedScholars :localId="userId"/>
       </div>
     </div>
     <div class="profile-top-container">
       <div class="profile-left-box">
         <div>
           <h2> Cited Trend </h2>
-          <svg ref="cited-trend" class="chart"></svg>
+          <div ref="cited-trend" style="height: 200px"></div>
         </div>
-        <div></div>
+        <div>
+          <HistoryChart :eduList="eduList" :workList="workList" :paperList="paperList"/>
+        </div>
       </div>
       <div class="profile-right-box">
-        <HistoryChart/>
+        <div class="history-container">
+          <h2> Published Papers </h2>
+          <CitedPaper :relatedPapers="paperList" :genre="'cited'"></CitedPaper>
+        </div>
+<!--        <HistoryChart :eduList="eduList" :workList="workList" :paperList="paperList"/>-->
       </div>
     </div>
   </div>
@@ -33,11 +39,40 @@
 <script>
 import RelatedScholars from "@/components/UserProfile/RelatedScholars";
 import UserAvatarContainer from "@/components/UserProfile/UserAvatarContainer";
-import LineChart from "@/utils/LineChart";
+import renderLineChart from "@/utils/ECharts-LineChart";
 export default {
   name: "UserProfile",
   created() {
     this.userId = this.$route.params.id
+    this.$http({
+      url: "/user/user_edu",
+      params: {
+        local_id: this.userId
+      }
+    }).then(res => {
+      const data = res.data
+      this.eduList = JSON.parse(JSON.stringify(res.data.edu_list))
+    })
+    this.$http({
+      url: "/user/user_work",
+      params: {
+        local_id: this.userId
+      }
+    }).then(res => {
+      const data = res.data
+      this.workList = JSON.parse(JSON.stringify(res.data.work_list))
+    })
+
+    this.$http({
+      url: "/user/user_papers",
+      params: {
+        local_id: this.userId
+      }
+    }).then(res => {
+      this.$set(this.paperList, 'Ref', JSON.parse(JSON.stringify(res.data.paper_list)).slice(0, 20))
+      for (let i = 0; i < this.paperList.Ref.length; i++)
+        this.paperList.Clickable.push(1)
+    })
   },
   mounted() {
     this.$http({
@@ -54,21 +89,23 @@ export default {
       return new Promise(resolve => resolve())
     }).then(res => {
       const svg = this.$refs["cited-trend"]
-      const chart = new LineChart({
-        target: svg,
-        width: 320,
-        height: 200,
-        xTicks: 3,
-        yTicks: 3
-      })
+      // const chart = new LineChart({
+      //   target: svg,
+      //   width: 320,
+      //   height: 200,
+      //   xTicks: 3,
+      //   yTicks: 3
+      // })
       const svgData = JSON.parse(JSON.stringify(this.citationTrend))
-      chart.render(svgData)
+      // chart.render(svgData)
+      renderLineChart(svg, svgData)
     })
   },
   components: {
     UserAvatarContainer,
     HistoryChart: () => import("@/components/UserProfile/HistoryChart"),
-    RelatedScholars
+    RelatedScholars,
+    CitedPaper: () => import("@/components/Paper/CitedPaper")
   },
   data () {
     return {
@@ -78,7 +115,13 @@ export default {
       name: "",
       citationTrend: [],
       cited: 0,
-
+      eduList: {},
+      workList: {},
+      paperList: {
+        Ref: {},
+        Rec: {},
+        Clickable: []
+      }
     }
   },
   methods: {
@@ -146,6 +189,15 @@ export default {
       color: @font-dark-grey;
       cursor: pointer;
     }
+  }
+}
+.history-container {
+  position: relative;
+  h2 {
+    display: inline-block;
+    font-size: 20px;
+    margin: 16px 20px;
+    .dot-title(orange);
   }
 }
 </style>

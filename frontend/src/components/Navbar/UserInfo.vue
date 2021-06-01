@@ -6,7 +6,7 @@
       class="avatar" alt=""/>
       <UserPanel :show="showPanel"/>
     </div>
-    <span class="user-name"> {{$store.state.username}} </span>
+    <span class="user-name"> {{$store.state.userName}} </span>
 
   </div>
   <div class="right-container sign-in" v-else>

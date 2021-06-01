@@ -5,19 +5,20 @@
         <h2> Sign In. </h2>
         <span> Sign in with your data provided during registration  </span>
         <div class="data-form">
-          <span class="hint"> Your E-mail </span>
-          <input type="email" placeholder="email@example.com">
+          <span class="hint"> User Name </span>
+          <input type="text" placeholder="email@example.com" v-model="userName">
         </div>
         <div class="data-form">
           <span class="hint"> Your Password </span>
-          <input type="password" placeholder="Your Password">
+          <input type="password" placeholder="Your Password" v-model="password" :class="{'error': passwordIncorrect}">
+          <i class="error-message" v-if="passwordIncorrect"> Password Incorrect </i>
         </div>
         <div class="agreement">
           <input type="checkbox" id="agree-checkbox">
           <label for="agree-checkbox"><i class="fa fa-check"/> </label>
           <p class="desc"> Remember me </p>
         </div>
-        <button class="confirm-button"> Sign In </button>
+        <button class="confirm-button" @click="signIn"> {{submitting? 'Sign In' : 'Loading'}} </button>
       </div>
       <div class="right-box">
         <img src="../assets/infinite-loop-01.jpg" alt="">
@@ -28,7 +29,40 @@
 
 <script>
 export default {
-  name: "SignIn"
+  name: "SignIn",
+  data () {
+    return {
+      userName: "",
+      password: "",
+      passwordIncorrect: false,
+      submitting: false
+    }
+  },
+  methods: {
+     signIn () {
+       this.submitting = true
+       this.$http({
+         url: "/user//user_login",
+         params: {
+           user_name: this.userName,
+           password: this.password
+         }
+       }).then(res => {
+         const data = res.data
+         this.$store.commit('changeLogin',
+             {
+               authorization: res.data.token,
+               localId: res.data.local_id,
+               remoteId: res.data.remote_id,
+               userName: res.data.user_name
+             })
+         this.$router.push("/")
+       }).catch(e => {
+         this.passwordIncorrect = true
+         this.submitting = false
+       })
+     }
+  }
 }
 </script>
 

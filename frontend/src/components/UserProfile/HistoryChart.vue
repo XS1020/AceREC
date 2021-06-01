@@ -1,29 +1,31 @@
 <template>
   <div class="history-container">
-    <h2> Academic Experiences </h2>
-    <ul class="history-options" :style="{'--selected-option': selectedOption * 70 + 'px'}">
+    <h2> Experiences </h2>
+    <ul class="history-options" :style="{'--selected-option': selectedOption * 80 + 'px'}">
       <li v-for="(option, index) in options" @click="selectedOption = index"> {{option}} </li>
     </ul>
     <div class="chart-main">
-      <HistoryChartItem class="chart-item"/>
-      <HistoryChartItem class="chart-item"/>
-      <HistoryChartItem class="chart-item"/>
+      <HistoryChartItem class="chart-item" v-for="item in eduList" :eduInfo="item" v-if="selectedOption === 0"/>
+      <HistoryChartItem class="chart-item" v-for="item in workList" :eduInfo="item" v-if="selectedOption === 1"/>
     </div>
   </div>
 </template>
 
 <script>
+import CitedPaper from "@/components/Paper/CitedPaper";
 export default {
   name: "HistortyChart",
   components: {
+    CitedPaper,
     HistoryChartItem: () => import("@/components/UserProfile/HistoryChartItem")
   },
+  props: ['eduList', 'workList', 'paperList'],
   data () {
     return {
       selectedOption: 0,
       options: [
-          "All", "Paper", "Education", "Awards"
-      ]
+          "Education", "Works"
+      ],
     }
   }
 }
@@ -56,6 +58,7 @@ export default {
     transform: translateY(-10px);
   }
   .chart-item {
+    min-height: 60px;
     @margin-left: 20px;
     position: relative;
     margin-left: @margin-left;
@@ -63,8 +66,8 @@ export default {
       @size: 40px;
       position: absolute;
       left: -20px - @margin-left - @size / 2;
-      content: "\f105";
-      font: normal normal normal 14px/1 FontAwesome;
+      content: "\f102";
+      font: normal normal normal 30px/1 FontAwesome;
       line-height: @size;
       text-align: center;
       color: rebeccapurple;
@@ -72,6 +75,7 @@ export default {
       width: @size;
       border-radius: 50%;
       background-color: #efebfd;
+      top: -10px;
     }
     &:nth-child(n+2) {
       margin-top: 40px;
@@ -89,7 +93,7 @@ export default {
   li {
     font-size: 14px;
     font-weight: 600;
-    min-width: 70px;
+    min-width: 80px;
     text-align: center;
     cursor: pointer;
   }
@@ -100,7 +104,7 @@ export default {
     height: 3px;
     width: 50px;
     bottom: -5px;
-    left: 10px;
+    left: 15px;
     transition: all 0.3s;
     transform: translateX(var(--selected-option));
   }

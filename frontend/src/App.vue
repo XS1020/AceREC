@@ -17,6 +17,9 @@ export default {
     NavBar,
     ExportOptions: () => import("./components/Home/ExportOptions")
   },
+  mounted() {
+    console.log(this.$store.state)
+  },
   data () {
     return {
       exportOptions: false

@@ -16,11 +16,24 @@ export default {
     }).then(res => {
       const jsRes = res.data
       this.papers = jsRes.Rec
+      this.submitViewRec()
     })
   },
   data () {
     return {
       papers: []
+    }
+  },
+  methods: {
+    submitViewRec () {
+      let param = new URLSearchParams()
+      param.append('local_id', this.$store.state.localId)
+      param.append('paper_id', this.papers)
+      this.$http({
+        method: "post",
+        url: "/api/viewrecord",
+        data: param
+      }).then(res => {})
     }
   }
 }

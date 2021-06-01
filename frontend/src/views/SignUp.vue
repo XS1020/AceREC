@@ -6,23 +6,24 @@
         <span> Give us some of your infomation to get free access to our system  </span>
         <div class="data-form">
           <span class="hint"> Your Name </span>
-          <input type="text" placeholder="Your Name" class="error">
-          <i class="error-message"> You name </i>
+          <input type="text" placeholder="Your Name" v-model="userName" :class="{'error': userNameError}">
+          <i class="error-message" v-if="userNameError"> {{ userNameErrorMessage }} </i>
         </div>
         <div class="data-form">
           <span class="hint"> Your Affiliation </span>
-          <input type="text" placeholder="Havard University">
+          <input type="text" placeholder="Havard University" v-model="affiliation">
         </div>
         <div class="data-form">
           <span class="hint"> Your Password </span>
-          <input type="password" placeholder="Your Password">
+          <input type="password" placeholder="Your Password" v-model="password" :class="{'error': errorPassword}">
+          <i class="error-message" v-if="errorPassword"> {{ errorPasswordMessage }} </i>
         </div>
         <div class="agreement">
-          <input type="checkbox" id="agree-checkbox">
+          <input type="checkbox" id="agree-checkbox" v-model="agreeToTerms">
           <label for="agree-checkbox"><i class="fa fa-check"/> </label>
           <p class="desc"> By creating an account, you agree to the term of use </p>
         </div>
-        <button class="confirm-button"> Create Account </button>
+        <button class="confirm-button" @click="confirm"> Create Account </button>
       </div>
       <div class="right-box">
         <img src="../assets/infinite-loop-01.jpg" alt="">
@@ -33,7 +34,58 @@
 
 <script>
 export default {
-  name: "SignUp"
+  name: "SignUp",
+  data () {
+    return {
+      userName: "",
+      password: "",
+      affiliation: "",
+      userNameError: false,
+      agreeToTerms: false,
+      userNameErrorMessage: "",
+      errorPassword: false,
+      errorPasswordMessage: ""
+    }
+  },
+  methods: {
+    confirm () {
+      if (this.userName === "") {
+        this.userNameError = true
+        this.userNameErrorMessage = "Username should not be empty"
+        return
+      }
+      if (this.password === "") {
+        this.errorPassword = true
+        this.errorPasswordMessage = "Password should not be empty"
+        return
+      }
+      if (!this.agreeToTerms) {
+        alert('You should agree to user term')
+        return
+      }
+      this.$http({
+        url: "/user/user_signup",
+        params: {
+          user_name: this.userName,
+          password: this.password,
+          affiliation: this.affiliation
+        }
+      }).then(res => {
+        const data = res.data
+        this.$store.commit('changeLogin',
+            {
+              authorization: res.data.token,
+              localId: res.data.local_id,
+              remoteId: res.data.remote_id,
+              userName: res.data.user_name
+            })
+        this.$router.push("/")
+      }).catch(error => {
+        this.userNameError = true
+        this.userNameErrorMessage = "Username already exists"
+      })
+    }
+  }
 }
 </script>
 

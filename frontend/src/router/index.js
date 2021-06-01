@@ -34,20 +34,20 @@ const routes = [
     ]
   },
   {
-    path: "/paper",
-    redirect: "/paper/cited"
+    path: "/paper/:id",
+    redirect: "/paper/:id/cited"
   },
   {
-    path: "/paper/cited",
+    path: "/paper/:id/cited",
     name: "Paper",
     component: () => import("../views/Paper"),
     children: [
       {
-        path: "/paper/cited",
+        path: "/paper/:id/cited",
         component: () => import("../components/Paper/CitedPaper")
       },
       {
-        path: "/paper/recommend",
+        path: "/paper/:id/recommend",
         component: () => import("../components/Paper/CitedPaper")
       }
     ]
@@ -78,5 +78,14 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
-
+router.beforeEach((to, from, next) => {
+  if (to.path === '/signin' || to.path === "/signup")
+    next()
+  else {
+    const token = localStorage.getItem('authorization')
+    if (token === null || token === '')
+      next('/signin')
+    else next()
+  }
+})
 export default router

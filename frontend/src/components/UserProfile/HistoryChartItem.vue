@@ -1,21 +1,20 @@
 <template>
   <div class="chart-item-container">
-    <span>
-      <img src="../../assets/avatar.webp" alt="">
-      Wenzel
-    </span>
-    publish on <span> USENIX ATC </span>
-    <span class="chart-item-time"> 2021 July </span>
-    <p>
-      Characterizing and Optimizing Remote Persistent Memory with RDMA and NVM.
-      <i> View Detail </i>
-    </p>
+<!--    <span>-->
+<!--      <img src="../../assets/avatar.webp" alt="">-->
+<!--      Wenzel-->
+<!--    </span>-->
+    <span class="chart-item-time" v-if="eduInfo.year > 0"> {{eduInfo.year}} </span>
+    <span class="chart-item-time-unknown" v-else> Unknown </span>
+<!--    <span> {{eduInfo.action}} <strong> from </strong> {{eduInfo.institute + eduInfo.department}}</span>-->
+    <p> {{eduInfo.action}} <strong> from </strong> {{eduInfo.institute + eduInfo.department}} </p>
   </div>
 </template>
 
 <script>
 export default {
-  name: "HistoryChartItem"
+  name: "HistoryChartItem",
+  props: ['eduInfo'],
 }
 </script>
 
@@ -33,14 +32,26 @@ export default {
     img {
       .avatar-inline(16px)
     }
+    strong {
+      margin: 0 10px;
+      color: @font-medium-grey;
+    }
   }
   span.chart-item-time {
     color: mediumpurple;
-    font-size: 12px;
+    font-size: 25px;
     border-radius: 4px;
     background-color: #efebfd;
     padding: 2px 5px;
-    margin-left: 20px;
+    margin-left: 0;
+  }
+  span.chart-item-time-unknown {
+    color: mediumpurple;
+    font-size: 18px;
+    border-radius: 4px;
+    background-color: #efebfd;
+    padding: 2px 5px;
+    margin-left: 0;
   }
   p {
     background-color: #f7f7f7;
@@ -59,6 +70,9 @@ export default {
       &:hover {
         text-decoration: underline;
       }
+    }
+    strong {
+      margin: 0 5px;
     }
   }
 }
