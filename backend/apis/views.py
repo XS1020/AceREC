@@ -191,7 +191,7 @@ def Add_View_recoed(request):
         return HttpResponse('Unauthorlized', status=401)
 
     paper_id_list = []
-    for paperid in Data['paperid']:
+    for paperid in Data['paper_id'].split(','):
         try:
             paperid = int(paperid)
         except ValueError as e:
