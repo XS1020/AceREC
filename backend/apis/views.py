@@ -163,19 +163,29 @@ def Generate_Paper_bibtex(request):
 def Add_View_recoed(request):
     Data = request.POST
 
-    if not Data or 'local_id' not in Data:
-        return JsonResponse({'stat': 0, 'Reason': "No Sufficient Data"})
-    if 'remote_id' not in Data or 'paper_id' not in Data:
+    if not Data or 'local_id' not in Data or 'paperid' not in Data:
         return JsonResponse({'stat': 0, 'Reason': "No Sufficient Data"})
 
     try:
-        paper_id = int(Data['paper_id'])
-        local_id, remote_id = int(Data['local_id']), int(Data['remote_id'])
+        local_id = int(Data['local_id'])
     except ValueError as e:
         return HttpResponseNotAllowed("Not Int Ids")
 
     if local_id < 0:
         return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
+
+    remote_id = Local_to_Remote(local_id)
+    if remote_id < 0:
+        return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
+
+    paper_id_list = []
+    for paperid in Data['paperid']:
+        try:
+            paperid = int(paperid)
+        except ValueError as e:
+            return HttpResponseNotAllowed("Not Int Paperid")
+        paper_id_list.append(paperid)
+
 
     for paper_id in paper_id_list:
         Record.objects.create(
@@ -189,18 +199,21 @@ def Add_View_recoed(request):
 def Add_Click_record(request):
     Data = request.POST
 
-    if not Data or 'local_id' not in Data:
-        return JsonResponse({'stat': 0, 'Reason': "No Sufficient Data"})
-    if 'remote_id' not in Data or 'paper_id' not in Data:
+    if not Data or 'local_id' not in Data or 'paperid' not in Data:
         return JsonResponse({'stat': 0, 'Reason': "No Sufficient Data"})
     try:
-        paper_id = int(Data['paper_id'])
-        local_id, remote_id = int(Data['local_id']), int(Data['remote_id'])
+        paper_id = int(Data['paperid'])
+        local_id = int(Data['local_id'])
     except ValueError as e:
         return HttpResponseNotAllowed("Not Int Ids")
 
     if local_id < 0:
         return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
+
+    remote_id = Local_to_Remote(local_id)
+    if remote_id < 0:
+        return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
+
 
     Record.objects.create(
         paper_id=paper_id, local_id=local_id,

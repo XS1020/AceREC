@@ -55,10 +55,12 @@ def user_login(request):
         info['local_id'] = u.local_id
         info['remote_id'] = u.remote_id
         info['token'] = token
+        info['user_name'] = u.user_name
     else:
         info['local_id'] = -1
         info['remote_id'] = -1
         info['token'] = -1
+        info['user_name'] = ''
     return JsonResponse(info)
 
 def user_signup(request):
