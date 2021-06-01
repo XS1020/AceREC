@@ -38,7 +38,7 @@ export default {
     color: mediumpurple;
     font-size: 12px;
     border-radius: 4px;
-    background-color: @bg-light-purple;
+    background-color: #efebfd;
     padding: 2px 5px;
     margin-left: 20px;
   }

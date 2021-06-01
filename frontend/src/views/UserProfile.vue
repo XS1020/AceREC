@@ -2,28 +2,14 @@
   <div class="profile-wrapper">
     <div class="profile-top-container">
       <div class="profile-left-box">
-        <div class="avatar-container">
-          <img src="../assets/avatar.webp" alt=""/>
-          <div class="name-container">
-            Hori
-            <i class="fa fa-twitter"/>
-            <i class="fa fa-github"/>
-            <i class="fa fa-facebook-square"/>
-            <span><i class="fa fa-star-o"/> CS Professor </span>
-            <span class="location-display"><i class="fa fa-location-arrow"/> Tokyo, Japan </span>
-          </div>
-          <button class="follow-button" :class="{'disabled': following}" @click="changeFollowingState">
-            <i class="fa fa-plus" v-if="!following"/>
-            <i class="fa fa-minus" v-else/>
-            {{following? "Followed":"Follow"}}
-          </button>
-        </div>
-        <div>
-          <ul class="tag-list">
-            <li v-for="tag in tags"> {{tag}} </li>
-            <li class="add-tag"><i class="fa fa-plus"/> Add Tag </li>
-          </ul>
-        </div>
+        <UserAvatarContainer :userId="userId"/>
+
+<!--        <div>-->
+<!--          <ul class="tag-list">-->
+<!--            <li v-for="tag in tags"> {{tag}} </li>-->
+<!--            <li class="add-tag"><i class="fa fa-plus"/> Add Tag </li>-->
+<!--          </ul>-->
+<!--        </div>-->
       </div>
       <div class="profile-right-box">
         <RelatedScholars/>
@@ -33,6 +19,7 @@
       <div class="profile-left-box">
         <div>
           <h2> Cited Trend </h2>
+          <svg ref="cited-trend" class="chart"></svg>
         </div>
         <div></div>
       </div>
@@ -45,29 +32,63 @@
 
 <script>
 import RelatedScholars from "@/components/UserProfile/RelatedScholars";
+import UserAvatarContainer from "@/components/UserProfile/UserAvatarContainer";
+import LineChart from "@/utils/LineChart";
 export default {
   name: "UserProfile",
+  created() {
+    this.userId = this.$route.params.id
+  },
+  mounted() {
+    this.$http({
+      url: "/api/ptrend",
+      params: {
+        local_id: this.userId
+      }
+    }).then(res => {
+      let i = 0
+      for (const item of res.data.trend) {
+        this.$set(this.citationTrend, i, {time: item.year, value: item.citation_count})
+        i++
+      }
+      return new Promise(resolve => resolve())
+    }).then(res => {
+      const svg = this.$refs["cited-trend"]
+      const chart = new LineChart({
+        target: svg,
+        width: 320,
+        height: 200,
+        xTicks: 3,
+        yTicks: 3
+      })
+      const svgData = JSON.parse(JSON.stringify(this.citationTrend))
+      chart.render(svgData)
+    })
+  },
   components: {
+    UserAvatarContainer,
     HistoryChart: () => import("@/components/UserProfile/HistoryChart"),
     RelatedScholars
   },
   data () {
     return {
       following: false,
-      tags: ['Front End', 'HTML', 'CSS', 'JavaScript']
+      tags: ['Front End', 'HTML', 'CSS', 'JavaScript'],
+      userId: 0,
+      name: "",
+      citationTrend: [],
+      cited: 0,
+
     }
   },
   methods: {
-    changeFollowingState () {
-      this.following = !this.following
-    }
   }
 }
 </script>
 
 <style scoped lang="less">
 @import "../assets/css/baseStyle";
-
+@import "../assets/css/lineChart.css";
 .profile-wrapper {
   display: flex;
   justify-content: center;
@@ -90,40 +111,6 @@ export default {
       padding: 10px;
       h2 {
         .dot-title(purple);
-      }
-    }
-    .avatar-container {
-      display: flex;
-      justify-content: flex-start;
-      position: relative;
-      img {
-        .avatar-medium();
-      }
-      .name-container {
-        margin-left: 20px;
-        padding: 10px 0;
-        font-size: 18px;
-        font-weight: 600;
-        color: @font-dark-grey;
-        & > i {
-          margin-left: 10px;
-          cursor: pointer;
-          transition: all 0.3s;
-          &:hover {
-            color: rebeccapurple;
-          }
-        }
-        span {
-          display: block;
-          font-size: 14px;
-          font-weight: 500;
-          color: rebeccapurple;
-          margin-top: 5px;
-        }
-        span.location-display {
-          display: inline-block;
-          color: @font-medium-grey;
-        }
       }
     }
   }

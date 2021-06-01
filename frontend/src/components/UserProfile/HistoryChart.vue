@@ -71,7 +71,7 @@ export default {
       height: @size;
       width: @size;
       border-radius: 50%;
-      background-color: @bg-light-purple;
+      background-color: #efebfd;
     }
     &:nth-child(n+2) {
       margin-top: 40px;

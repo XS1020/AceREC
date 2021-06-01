@@ -1,24 +1,24 @@
 <template>
-  <div class="cited-paper-container">
-    <div class="cited-paper-item">
-      <img src="../../assets/1901.05555.png" alt="">
-      <div class="paper-item-info">
-        <h2> Gene Ontology: tool for the unification of biology </h2>
-        <span><i class="fa fa-user-circle-o"/> Michael Ashburner </span>
-        <span><i class="fa fa-clock-o"/> 2003 </span>
-        <ul class="label-list">
-          <li> New </li>
-          <li> Popular </li>
-          <li> djdjdj </li>
-        </ul>
-      </div>
-    </div>
+  <div class="cited-paper-container" v-if="genre === 'cited'">
+    <CitedPaperItem v-for="(ref, index) in relatedPapers.Ref"
+                    :paperInfo="{id: ref, click: relatedPapers.Clickable[index]}"/>
+  </div>
+  <div class="cited-paper-container" v-else>
+    <CitedPaperItem v-for="(ref, index) in relatedPapers.Rec"
+                    :paperInfo="{id: ref, click: 0}"/>
   </div>
 </template>
 
 <script>
+import CitedPaperItem from "@/components/Paper/CitedPaperItem";
 export default {
-  name: "CitedPaper"
+  name: "CitedPaper",
+  props: ['relatedPapers', 'genre'],
+  data () {
+    return {
+    }
+  },
+  components: {CitedPaperItem}
 }
 </script>
 

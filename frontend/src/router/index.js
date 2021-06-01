@@ -11,6 +11,14 @@ const routes = [
     name: 'Home',
   },
   {
+    path: '/signup',
+    component: () => import("../views/SignUp")
+  },
+  {
+    path: "/signin",
+    component: () => import("../views/SignIn")
+  },
+  {
     path: "/home/index",
     name: "index",
     component: Home,
@@ -37,25 +45,29 @@ const routes = [
       {
         path: "/paper/cited",
         component: () => import("../components/Paper/CitedPaper")
+      },
+      {
+        path: "/paper/recommend",
+        component: () => import("../components/Paper/CitedPaper")
       }
     ]
   },
   {
-    path: "/user/:id",
+    path: "/profile/:id",
     name: "User Profile",
     redirect: to => {
       return to.fullPath + "/index"
     }
   },
   {
-    path: "/user/:id/index",
+    path: "/profile/:id/index",
     component: () => import("../views/UserProfile"),
     children: [
       {
-        path: "/user/:id/index",
+        path: "/profile/:id/index",
       },
       {
-        path: "/user/:id/index1"
+        path: "/profile/:id/index1"
       }
     ]
   }

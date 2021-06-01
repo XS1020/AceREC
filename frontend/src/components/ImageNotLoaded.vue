@@ -1,5 +1,5 @@
 <template>
-  <div class="image-not-loaded">
+  <div class="image-not-loaded" ref="this-wrap">
     <img src="../assets/warning-fill.svg" alt="">
     Preview Not Available
   </div>
@@ -7,7 +7,17 @@
 
 <script>
 export default {
-  name: "ImageNotLoaded"
+  name: "ImageNotLoaded",
+  mounted() {
+    this.adjustSize()
+  },
+  methods: {
+    adjustSize () {
+      const ref = this.$refs["this-wrap"]
+      if (ref.offsetWidth < 100)
+        ref.style.fontSize = "12px"
+    }
+  }
 }
 </script>
 
@@ -18,6 +28,7 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  text-align: center;
   border-radius: 8px;
   img {
     width: 20%;

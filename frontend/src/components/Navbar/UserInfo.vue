@@ -12,8 +12,7 @@
   <div class="right-container sign-in" v-else>
     <span @click="signIn"> Sign In </span>
     <div>
-      <button @click="showForm = !showForm"> Sign Up </button>
-      <SignUp :class="{'show-form': showForm}"/>
+      <button @click="jumpToSignUp"> Sign Up </button>
     </div>
   </div>
 </template>
@@ -34,12 +33,14 @@ export default {
   },
   methods: {
     signIn () {
-      this.$store.state.login = true
-      this.showPanel = false
+      this.$router.push("/signin")
     },
     showThePanel () {
       console.log("hhh");
       this.showPanel = true
+    },
+    jumpToSignUp () {
+      this.$router.push("/signup")
     }
   },
   components: {BrowseCategories, SignUp, UserPanel}

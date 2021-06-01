@@ -7,7 +7,8 @@
           <span> From {{source}} </span>
           <div class="basic-info-container">
             <div> <i class="fa fa-user-circle-o"/> Authors:
-              <strong v-for="(author, index) in authors" @click="jumpToUser(author.remote_id, author.clickable)">
+              <strong v-for="(author, index) in authors" @click="jumpToUser(author.remote_id, author.clickable)"
+              :class="{'clickable': author.clickable}">
                 {{index < authors.length - 1? author.name + ", ":author.name}}
               </strong>
             </div>
@@ -36,7 +37,11 @@
         <div class="right-bar">
           <div>
             <h2> Related Papers </h2>
-            <router-view></router-view>
+            <ViewOptions
+                :options="[{text: 'Reference', to: '/paper/cited'}, {text: 'Recommend', to: '/paper/recommend'}]"/>
+            <keep-alive>
+              <router-view :related-papers="relatedPapers" :genre="genre" :key="genre"></router-view>
+            </keep-alive>
           </div>
         </div>
       </div>
@@ -48,10 +53,20 @@
 import LineChart from "@/utils/LineChart";
 import Cloud from "@/utils/Cloud";
 import ImageNotLoaded from "@/components/ImageNotLoaded";
+import ViewOptions from "@/components/ViewOptions";
 export default {
   name: "Paper",
-  components: {ImageNotLoaded},
+  components: {ViewOptions, ImageNotLoaded},
   created() {
+    this.$http({
+      url: "/api/paperpagerec",
+      params: {
+        paperid: 173
+      }
+    }).then(res => {
+      this.relatedPapers = JSON.parse(JSON.stringify(res.data))
+    })
+
     this.$http({
       url: "/api/paperinfo",
       params: {
@@ -101,6 +116,7 @@ export default {
       }
       return new Promise(resolve => resolve(res))
     }).then(() => this.mountWordCloud())
+
   },
   data () {
     return {
@@ -113,7 +129,8 @@ export default {
       citationCount: 0,
       authors: [],
       abstract: "",
-      source: ""
+      source: "",
+      relatedPapers: {}
     }
   },
   methods: {
@@ -160,6 +177,13 @@ export default {
     jumpToUser (userId, clickable) {
       if (clickable)
         this.$router.push('/user/' + userId)
+    }
+  },
+  computed: {
+    genre () {
+      const path = this.$route.fullPath
+      if (/cited$/.exec(path)) return "cited"
+      else return "recommend"
     }
   }
 }
@@ -239,6 +263,8 @@ export default {
       font-size: 16px;
     }
     & > strong {
+      display: inline-block;
+      margin: 1px;
       font-weight: 500;
       color: @font-medium-grey;
     }
@@ -259,6 +285,7 @@ export default {
     }
   }
   .right-bar {
+    position: relative;
     @color-list-1: orange, plum, aqua;
     .random-color(3, @color-list-1);
     width: 60%;
@@ -270,5 +297,12 @@ export default {
     }
   }
 }
-
+.clickable {
+  cursor: pointer;
+  transition: all 0.3s;
+  &:hover {
+    text-decoration: underline;
+    color: rebeccapurple;
+  }
+}
 </style>
