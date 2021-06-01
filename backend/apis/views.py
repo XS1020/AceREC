@@ -1,3 +1,4 @@
+from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
 import time
 from User.models import User_Token
@@ -183,10 +184,17 @@ def Add_View_recoed(request):
     if remote_id < 0:
         return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
 
-    Token = request.META.get('HTTP_TOKEN')
+    Token = request.META.get('HTTP_TOKEN', "")
+
+    print("Token:", Token)
+    
     Obj = User_Token.objects.filter(local_id=local_id)
     if len(Obj) == 0 or Token != Obj[0].token:
         return HttpResponse('Unauthorlized', status=401)
+
+    x = time.time()
+    print(x, Obj[0].update_time, x - Obj[0].update_time)
+
     if time.time() - Obj[0].update_time > LOGIN_TIME_OUT:
         return HttpResponse('Unauthorlized', status=401)
 
@@ -227,7 +235,7 @@ def Add_Click_record(request):
     if remote_id < 0:
         return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
 
-    Token = request.META.get('HTTP_TOKEN')
+    Token = request.META.get('HTTP_TOKEN', "")
     Obj = User_Token.objects.filter(local_id=local_id)
     if len(Obj) == 0 or Token != Obj[0].token:
         return HttpResponse('Unauthorlized', status=401)
@@ -438,3 +446,8 @@ def Author_Cite_Count(request):
             'paper_count': Ans[1],
             'h_index': Ans[2]
         })
+
+
+def ctoken(request):
+    token = get_token(request=request)
+    return JsonResponse({'token': token})
