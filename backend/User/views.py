@@ -17,7 +17,7 @@ from backend.settings import STATICFILES_DIRS
 
 
 # CONSTANTS
-TIME_OUT = 60 * 60
+LOGIN_TIME_OUT = 60 * 60
 
 # Create your views here.
 

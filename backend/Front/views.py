@@ -84,3 +84,4 @@ def Recomend_and_cite_Paper_Page(request):
     Ans['Clickable'] = [1 if x in Paper_Subset else 0 for x in Ans['Ref']]
 
     return JsonResponse(Ans)
+

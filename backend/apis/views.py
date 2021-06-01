@@ -1,3 +1,6 @@
+from django.views.decorators.csrf import csrf_exempt
+import time
+from User.models import User_Token
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import HttpResponse
@@ -19,6 +22,7 @@ from .utils import Get_Paper_Keyword, Get_Paper_Doi, Get_Org_Url
 from .utils import Remote_to_Local, Local_to_Remote
 from .utils import Get_Person_Cite, Get_Related_Authors
 from .utils import Get_Person_Cite_Count
+from User.views import LOGIN_TIME_OUT
 # Create your views here.
 
 
@@ -160,10 +164,11 @@ def Generate_Paper_bibtex(request):
     return JsonResponse({'bib': Answer})
 
 
+@csrf_exempt
 def Add_View_recoed(request):
     Data = request.POST
 
-    if not Data or 'local_id' not in Data or 'paperid' not in Data:
+    if not Data or 'local_id' not in Data or 'paper_id' not in Data:
         return JsonResponse({'stat': 0, 'Reason': "No Sufficient Data"})
 
     try:
@@ -178,6 +183,13 @@ def Add_View_recoed(request):
     if remote_id < 0:
         return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
 
+    Token = request.META.get('HTTP_TOKEN')
+    Obj = User_Token.objects.filter(local_id=local_id)
+    if len(Obj) == 0 or Token != Obj[0].token:
+        return HttpResponse('Unauthorlized', status=401)
+    if time.time() - Obj[0].update_time > LOGIN_TIME_OUT:
+        return HttpResponse('Unauthorlized', status=401)
+
     paper_id_list = []
     for paperid in Data['paperid']:
         try:
@@ -185,7 +197,6 @@ def Add_View_recoed(request):
         except ValueError as e:
             return HttpResponseNotAllowed("Not Int Paperid")
         paper_id_list.append(paperid)
-
 
     for paper_id in paper_id_list:
         Record.objects.create(
@@ -196,13 +207,15 @@ def Add_View_recoed(request):
     return JsonResponse({"stat": 1, "Reason": ""})
 
 
+@csrf_exempt
 def Add_Click_record(request):
     Data = request.POST
 
-    if not Data or 'local_id' not in Data or 'paperid' not in Data:
+    if not Data or 'local_id' not in Data or 'paper_id' not in Data:
         return JsonResponse({'stat': 0, 'Reason': "No Sufficient Data"})
+
     try:
-        paper_id = int(Data['paperid'])
+        paper_id = int(Data['paper_id'])
         local_id = int(Data['local_id'])
     except ValueError as e:
         return HttpResponseNotAllowed("Not Int Ids")
@@ -214,6 +227,12 @@ def Add_Click_record(request):
     if remote_id < 0:
         return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
 
+    Token = request.META.get('HTTP_TOKEN')
+    Obj = User_Token.objects.filter(local_id=local_id)
+    if len(Obj) == 0 or Token != Obj[0].token:
+        return HttpResponse('Unauthorlized', status=401)
+    if time.time() - Obj[0].update_time > LOGIN_TIME_OUT:
+        return HttpResponse('Unauthorlized', status=401)
 
     Record.objects.create(
         paper_id=paper_id, local_id=local_id,
