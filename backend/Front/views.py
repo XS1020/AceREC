@@ -22,23 +22,27 @@ def MainPage(request):
     return JsonResponse(dresponse)
 
 
-def Get_Search_Res(keyword, stype='full', solrlink=None):
+def Get_Search_Res(keyword, stype='All', start=0, solrlink=None):
     if solrlink is None:
-        Solr = pysolr.Solr('http://localhost:8983/solr/EE447', timeout=300)
+        solrlink = pysolr.Solr('http://localhost:8983/solr/EE447', timeout=300)
     keyword = '+'.join(keyword.split())
-    if stype not in ['full', 'title', 'author_name', 'cf_jor']:
+
+    if stype not in ['All', 'Title', 'Author', 'Conference', 'Journal']:
         raise ValueError('Not a legal search type')
 
-    if stype == 'full':
-        result = solrlink.search('search:%s' % keyword)
-    if stype == 'title':
-        result = solrlink.search('title:%s' % keyword)
-    if stype == 'author_name':
-        result = solrlink.search('author_name:%s' % keyword)
-    if stype == 'cf_jor':
-        result1 = solrlink.search('conference:%s' % keyword)
-        result2 = solrlink.search('journal:%s' % keyword)
-        result = result1 + result2
+    if stype == 'All':
+        result = solrlink.search('search:%s' % keyword, rows=20, start=start)
+    if stype == 'Title':
+        result = solrlink.search('title:%s' % keyword, rows=20, start=start)
+    if stype == 'Author':
+        result = solrlink.search('author_name:%s' %
+                                 keyword, rows=20, start=start)
+    if stype == 'Conference':
+        result = solrlink.search('conference:%s' %
+                                 keyword, rows=20, start=start)
+    if stype == 'Journal':
+        result = solrlink.search('journal:%s' % keyword, rows=20, start=start)
+
     return result
 
 
@@ -49,17 +53,31 @@ def Search(request):
     if 'keyword' not in Data:
         return HttpResponseBadRequest('No Data')
     Solr = pysolr.Solr('http://localhost:8983/solr/EE447', timeout=300)
-    search_type = Data.get('stype', 'full')
+
+    search_type = Data.get('mode', 'All')
+    try:
+        Page_num = int(Data.get('page', 1))
+        Start = (Page_num - 1) * 20
+    except Exception as e:
+        return HttpResponseNotAllowed("Not Int Page_num")
+
+    if Start < 0:
+        return HttpResponseNotAllowed("Start Place should be non-negative")
+
     keyword = Data['keyword']
 
     try:
-        result = Get_Search_Res(keyword, search_type, Solr)
+        result = Get_Search_Res(keyword, search_type, Start, Solr)
     except Exception as e:
         return HttpResponseNotAllowed(str(e))
 
-    # result = Get_Search_Res(keyword, search_type, Solr)
+    # result = Get_Search_Res(keyword, search_type, Start, Solr)
+
     Paperid_list = [res['paperid'] for res in result]
-    return JsonResponse({'paper_id_list': Paperid_list})
+    return JsonResponse({
+        'paper_id_list': Paperid_list,
+        'number': result.hits
+    })
 
 
 def Recomend_and_cite_Paper_Page(request):
@@ -84,4 +102,3 @@ def Recomend_and_cite_Paper_Page(request):
     Ans['Clickable'] = [1 if x in Paper_Subset else 0 for x in Ans['Ref']]
 
     return JsonResponse(Ans)
-
