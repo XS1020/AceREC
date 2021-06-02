@@ -167,7 +167,7 @@ def Get_Org_Url(paperid, cursor=None):
     if Flag:
         close_conn(conn, cursor)
 
-    if Ans == []:
+    if len(Ans) == 0:
         return {'url': ''}
     Ansline = 0
     for lin in range(len(Ans)):
