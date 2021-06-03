@@ -146,6 +146,9 @@ def get_user_info(request):
     info['affiliation'] = u.affiliation
     research_list = u.research_list
     research_list = research_list.split("_")
+    if len(research_list) == 1:
+        if research_list[0] == '':
+            research_list = []
     info['research_list'] = research_list
     info['paper_num'] = u.paper_num
 
@@ -345,6 +348,9 @@ def get_user_info_to_update(request):
     name = u.name
     research_list = u.research_list
     research_list = research_list.split("_")
+    if len(research_list) == 1:
+        if research_list[0] == '':
+            research_list = []
 
     field_list = []
     fields = models.User_Interest.objects.filter(local_id=local_id)
@@ -382,6 +388,10 @@ def update_user_info(request):
         remote_id = int(remote_id)
     except ValueError:
         return HttpResponseBadRequest('Invalid remote ID!')
+
+    name = req.get('name', None)
+    if namw is None:
+        return HttpResponseBadRequest('Need old password!')
 
     password = req.get('old_password', None)
     new_password = req.get('new_password', None)
@@ -423,6 +433,10 @@ def update_user_info(request):
                 u.update(password=new_password)
     else:
         print("Password is not str!")
+
+    if isinstance(name, str):
+        if name != '':
+            u.update(name=name)
 
     if isinstance(research_list, str):
         if research_list != '':
