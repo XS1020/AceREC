@@ -29,7 +29,7 @@ class Recom_Data(models.Model):
 
 class Embeddings(models.Model):
     paper_id = models.BigIntegerField(db_index=True)
-    updated_time = models.DateTimeField(auto_now=True)
+    update_time = models.DateTimeField(auto_now=True)
     Embedding = models.CharField(max_length=2600)
 
     class Meta:
