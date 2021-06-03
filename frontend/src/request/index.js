@@ -19,6 +19,7 @@ const request = (config) => {
         switch (error.response.status) {
             case 401:
                 clearToken()
+                this.store.state.login = false
                 break
             case 403:
                 clearToken()

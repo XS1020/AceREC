@@ -18,7 +18,6 @@ export default {
     ExportOptions: () => import("./components/Home/ExportOptions")
   },
   mounted() {
-    console.log(this.$store.state)
   },
   data () {
     return {

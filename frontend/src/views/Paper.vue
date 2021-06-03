@@ -7,7 +7,7 @@
           <span> From {{source}} </span>
           <div class="basic-info-container">
             <div> <i class="fa fa-user-circle-o"/> Authors:
-              <strong v-for="(author, index) in authors" @click="jumpToUser(author.remote_id, author.clickable)"
+              <strong v-for="(author, index) in authors" @click="jumpToUser(author.local_id, author.clickable)"
               :class="{'clickable': author.clickable}">
                 {{index < authors.length - 1? author.name + ", ":author.name}}
               </strong>
@@ -58,75 +58,18 @@ import ViewOptions from "@/components/ViewOptions";
 export default {
   name: "Paper",
   components: {ViewOptions, ImageNotLoaded},
+  beforeRouteUpdate (to, from, next) {
+    next()
+    if (to.params.id !== from.params.id) {
+      this.renderData()
+      this.renderSvg()
+    }
+  },
   created() {
-    this.paperId = this.$route.params.id
-    let param = new URLSearchParams()
-    param.append('paper_id', this.paperId)
-    param.append('local_id', this.$store.state.localId)
-    this.$http({
-      method: "post",
-      url: "/api/clickrecord",
-      data: param
-    }).then(res => {})
-    this.$http({
-      url: "/api/paperpagerec",
-      params: {
-        paperid: this.paperId
-      }
-    }).then(res => {
-      this.relatedPapers = JSON.parse(JSON.stringify(res.data))
-    })
-
-    this.$http({
-      url: "/api/paperinfo",
-      params: {
-        paperid: this.paperId
-      }
-    }).then(res => {
-      const data = res.data
-      this.title = data.title
-      this.year = data.year
-      this.imgurl = data.imgurl
-      this.citationCount = data.citation_count
-      this.doi = data.doi
-      this.abstract = data.abstract
-      this.source = data.url
-      let idx = 0
-      for (const author of data.Authors) {
-        this.$set(this.authors, idx, Object.assign(data.Authors[idx]))
-        idx++
-      }
-    })
+    this.renderData()
   },
   mounted() {
-    this.$http({
-      url: "/api/ctrend",
-      params: {
-        paperid: this.paperId
-      }
-    }).then(res => {
-      let i = 0
-      for (const item of res.data.cite_trend) {
-        this.$set(this.citeTrend, i++, Object.assign(item))
-      }
-      return new Promise(resolve => resolve(res))
-    }).then(() => {
-      this.mountCitedTrend()
-    })
-
-    this.$http({
-      url: "/api/paperkeyword",
-      params: {
-        paperid: this.paperId
-      }
-    }).then(res => {
-      let i = 0
-      for (const item of res.data.keyword) {
-        this.$set(this.keyWords, i++, Object.assign(item))
-      }
-      return new Promise(resolve => resolve(res))
-    }).then(() => this.mountWordCloud())
-
+    this.renderSvg()
   },
   data () {
     return {
@@ -168,6 +111,7 @@ export default {
     renderLineChart(svg, svgData)
     },
     mountWordCloud () {
+      this.$refs["word-cloud"].innerHTML = ""
       const keyWords = JSON.parse(JSON.stringify(this.keyWords))
       const newKeyWords = []
       for (const item of keyWords) {
@@ -187,7 +131,76 @@ export default {
     },
     jumpToUser (userId, clickable) {
       if (clickable)
-        this.$router.push('/user/' + userId)
+        this.$router.push('/profile/' + userId)
+    },
+    renderData () {
+      this.paperId = this.$route.params.id
+      let param = new URLSearchParams()
+      param.append('paper_id', this.paperId)
+      param.append('local_id', this.$store.state.localId)
+      this.$http({
+        method: "post",
+        url: "/api/clickrecord",
+        data: param
+      }).then(res => {})
+      this.$http({
+        url: "/api/paperpagerec",
+        params: {
+          paperid: this.paperId
+        }
+      }).then(res => {
+        this.relatedPapers = JSON.parse(JSON.stringify(res.data))
+      })
+
+      this.$http({
+        url: "/api/paperinfo",
+        params: {
+          paperid: this.paperId
+        }
+      }).then(res => {
+        const data = res.data
+        this.title = data.title
+        this.year = data.year
+        this.imgurl = data.imgurl
+        this.citationCount = data.citation_count
+        this.doi = data.doi
+        this.abstract = data.abstract
+        this.source = data.url
+        let idx = 0
+        for (const author of data.Authors) {
+          this.$set(this.authors, idx, Object.assign(data.Authors[idx]))
+          idx++
+        }
+      })
+    },
+    renderSvg () {
+      this.$http({
+        url: "/api/ctrend",
+        params: {
+          paperid: this.paperId
+        }
+      }).then(res => {
+        let i = 0
+        for (const item of res.data.cite_trend) {
+          this.$set(this.citeTrend, i++, Object.assign(item))
+        }
+        return new Promise(resolve => resolve(res))
+      }).then(() => {
+        this.mountCitedTrend()
+      })
+
+      this.$http({
+        url: "/api/paperkeyword",
+        params: {
+          paperid: this.paperId
+        }
+      }).then(res => {
+        let i = 0
+        for (const item of res.data.keyword) {
+          this.$set(this.keyWords, i++, Object.assign(item))
+        }
+        return new Promise(resolve => resolve(res))
+      }).then(() => this.mountWordCloud())
     }
   },
   computed: {

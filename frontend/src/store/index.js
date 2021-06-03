@@ -7,7 +7,7 @@ export default new Vuex.Store({
   state: {
     login: !!localStorage.getItem('authorization'),
     localId: localStorage.getItem('localId'),
-    remoteId: 0,
+    remoteId: localStorage.getItem('remoteId'),
     userName: localStorage.getItem('username'),
     authorization: localStorage.getItem('authorization') ? localStorage.getItem('authorization') : ''
   },
@@ -17,6 +17,7 @@ export default new Vuex.Store({
       localStorage.setItem('authorization', user.authorization)
       localStorage.setItem('username', user.userName)
       localStorage.setItem('localId', user.localId)
+      localStorage.setItem('remoteId', user.remoteId)
       state.login = true
       state.localId = user.localId
       state.remoteId = user.remoteId
@@ -25,11 +26,12 @@ export default new Vuex.Store({
     logout (state) {
       state.authorization = ""
       state.login = false
-      state.remoteId = state.localId = 0
+      state.remoteId = state.localId = ""
       state.userName = ""
       localStorage.removeItem('authorization')
       localStorage.removeItem('username')
       localStorage.removeItem('localId')
+      localStorage.removeItem('remoteId')
     }
   },
   actions: {

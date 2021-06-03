@@ -1,11 +1,12 @@
 <template>
   <div class="cited-paper-container" v-if="genre === 'cited'">
     <CitedPaperItem v-for="(ref, index) in relatedPapers.Ref"
-                    :paperInfo="{id: ref, click: relatedPapers.Clickable[index]}"/>
+                    :paperInfo="{id: ref, click: relatedPapers.Clickable[index]}"
+                    :key="ref"/>
   </div>
   <div class="cited-paper-container" v-else>
     <CitedPaperItem v-for="(ref, index) in relatedPapers.Rec"
-                    :paperInfo="{id: ref, click: 0}"/>
+                    :paperInfo="{id: ref, click: 1}"/>
   </div>
 </template>
 

@@ -6,7 +6,7 @@
         <h2> {{name}} </h2>
         <span><i class="fa fa-bank"/> {{affiliation}} </span>
         <span><i class="fa fa-location-arrow"/> Shanghai, China Mainland </span>
-        <span><i class="fa fa-envelope-o"/> wenzelmetternich@sjtu.edu.cn </span>
+        <span><i class="fa fa-envelope-o"/> -- </span>
       </div>
     </div>
     <i class="follow-button fa fa-ellipsis-v"/>

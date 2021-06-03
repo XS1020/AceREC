@@ -3,12 +3,19 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 
 Vue.use(VueRouter)
-
 const routes = [
   {
     path: '/',
     redirect: "/home/index",
     name: 'Home',
+  },
+  {
+    path: '/settings',
+    component: () => import("../views/Settings")
+  },
+  {
+    path: "/search",
+    component: () => import("../views/Search")
   },
   {
     path: '/signup',
@@ -85,7 +92,10 @@ router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('authorization')
     if (token === null || token === '')
       next('/signin')
-    else next()
+    else {
+
+      next()
+    }
   }
 })
 export default router

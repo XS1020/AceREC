@@ -7,7 +7,7 @@
     <span class="chart-item-time" v-if="eduInfo.year > 0"> {{eduInfo.year}} </span>
     <span class="chart-item-time-unknown" v-else> Unknown </span>
 <!--    <span> {{eduInfo.action}} <strong> from </strong> {{eduInfo.institute + eduInfo.department}}</span>-->
-    <p> {{eduInfo.action}} <strong> from </strong> {{eduInfo.institute + eduInfo.department}} </p>
+    <p> {{eduInfo.action}} <strong> of </strong> {{eduInfo.institute + eduInfo.department}} </p>
   </div>
 </template>
 

@@ -35,7 +35,7 @@ export default {
 @import "../../assets/css/baseStyle";
 .history-container {
   position: relative;
-  h2 {
+  & > h2 {
     display: inline-block;
     font-size: 20px;
     margin: 16px 20px;

@@ -14,8 +14,10 @@ export default {
   methods: {
     adjustSize () {
       const ref = this.$refs["this-wrap"]
-      if (ref.offsetWidth < 100)
+      if (ref.offsetWidth < 100) {
         ref.style.fontSize = "12px"
+        ref.style.minHeight = '130px'
+      }
     }
   }
 }
@@ -25,6 +27,7 @@ export default {
 .image-not-loaded {
   background-color: #e7e7e7;
   display: flex;
+  min-height: 200px;
   flex-direction: column;
   justify-content: center;
   align-items: center;

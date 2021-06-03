@@ -1,7 +1,7 @@
 <template>
   <div class="user-panel" :class="{'user-panel-active': show}">
     <ul>
-      <li>
+      <li  @click="jumpToSettings">
         <i class="fa fa-cogs"/>
         Settings
       </li>
@@ -25,6 +25,9 @@ export default {
     signOut () {
       this.$store.commit('logout')
       this.$router.push("/signin")
+    },
+    jumpToSettings () {
+      this.$router.push("/settings")
     }
   }
 }

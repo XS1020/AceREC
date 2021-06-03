@@ -1,5 +1,5 @@
 <template>
-  <div class="cited-paper-item">
+  <div class="cited-paper-item" @click="jumpToPaper" :key="id">
     <img :src="imgurl" alt="" v-if="imgurl.length">
     <ImageNotLoaded v-else/>
     <div class="paper-item-info">
@@ -50,6 +50,12 @@ export default {
   },
   components: {
     ImageNotLoaded
+  },
+  methods: {
+    jumpToPaper () {
+      if (this.click)
+        this.$router.push("/paper/" + this.id)
+    }
   }
 }
 </script>

@@ -2,17 +2,15 @@
   <div class="profile-wrapper">
     <div class="profile-top-container">
       <div class="profile-left-box">
-        <UserAvatarContainer :userId="userId"/>
-
-<!--        <div>-->
-<!--          <ul class="tag-list">-->
-<!--            <li v-for="tag in tags"> {{tag}} </li>-->
-<!--            <li class="add-tag"><i class="fa fa-plus"/> Add Tag </li>-->
-<!--          </ul>-->
-<!--        </div>-->
+        <UserAvatarContainer :userId="userId" :key="'avatar-container' + userId"/>
+        <div>
+          <ul class="tag-list">
+            <li v-for="tag in tags"> {{tag}} </li>
+          </ul>
+        </div>
       </div>
       <div class="profile-right-box">
-        <RelatedScholars :localId="userId"/>
+        <RelatedScholars :localId="userId" :key="'related-scholar' + userId"/>
       </div>
     </div>
     <div class="profile-top-container">
@@ -22,7 +20,7 @@
           <div ref="cited-trend" style="height: 200px"></div>
         </div>
         <div>
-          <HistoryChart :eduList="eduList" :workList="workList" :paperList="paperList"/>
+          <HistoryChart :eduList="eduList" :workList="workList" :paperList="paperList" :key="'history' + userId"/>
         </div>
       </div>
       <div class="profile-right-box">
@@ -42,64 +40,18 @@ import UserAvatarContainer from "@/components/UserProfile/UserAvatarContainer";
 import renderLineChart from "@/utils/ECharts-LineChart";
 export default {
   name: "UserProfile",
+  beforeRouteUpdate (to, from, next) {
+    next()
+    if (to.path.startsWith('/profile') && from.params.id !== to.params.id) {
+      this.renderData()
+      this.renderSvg()
+    }
+  },
   created() {
-    this.userId = this.$route.params.id
-    this.$http({
-      url: "/user/user_edu",
-      params: {
-        local_id: this.userId
-      }
-    }).then(res => {
-      const data = res.data
-      this.eduList = JSON.parse(JSON.stringify(res.data.edu_list))
-    })
-    this.$http({
-      url: "/user/user_work",
-      params: {
-        local_id: this.userId
-      }
-    }).then(res => {
-      const data = res.data
-      this.workList = JSON.parse(JSON.stringify(res.data.work_list))
-    })
-
-    this.$http({
-      url: "/user/user_papers",
-      params: {
-        local_id: this.userId
-      }
-    }).then(res => {
-      this.$set(this.paperList, 'Ref', JSON.parse(JSON.stringify(res.data.paper_list)).slice(0, 20))
-      for (let i = 0; i < this.paperList.Ref.length; i++)
-        this.paperList.Clickable.push(1)
-    })
+    this.renderData()
   },
   mounted() {
-    this.$http({
-      url: "/api/ptrend",
-      params: {
-        local_id: this.userId
-      }
-    }).then(res => {
-      let i = 0
-      for (const item of res.data.trend) {
-        this.$set(this.citationTrend, i, {time: item.year, value: item.citation_count})
-        i++
-      }
-      return new Promise(resolve => resolve())
-    }).then(res => {
-      const svg = this.$refs["cited-trend"]
-      // const chart = new LineChart({
-      //   target: svg,
-      //   width: 320,
-      //   height: 200,
-      //   xTicks: 3,
-      //   yTicks: 3
-      // })
-      const svgData = JSON.parse(JSON.stringify(this.citationTrend))
-      // chart.render(svgData)
-      renderLineChart(svg, svgData)
-    })
+    this.renderSvg()
   },
   components: {
     UserAvatarContainer,
@@ -110,7 +62,7 @@ export default {
   data () {
     return {
       following: false,
-      tags: ['Front End', 'HTML', 'CSS', 'JavaScript'],
+      tags: [],
       userId: 0,
       name: "",
       citationTrend: [],
@@ -125,6 +77,73 @@ export default {
     }
   },
   methods: {
+    renderData () {
+      this.userId = this.$route.params.id
+      this.$http({
+        url: "/user/user_info",
+        params: {
+          local_id: this.userId,
+        }
+      }).then(res => {
+        this.tags = JSON.parse(JSON.stringify(res.data.research_list)).slice(0, 4)
+      })
+      this.$http({
+        url: "/user/user_edu",
+        params: {
+          local_id: this.userId
+        }
+      }).then(res => {
+        const data = res.data
+        this.eduList = JSON.parse(JSON.stringify(res.data.edu_list))
+      })
+      this.$http({
+        url: "/user/user_work",
+        params: {
+          local_id: this.userId
+        }
+      }).then(res => {
+        const data = res.data
+        this.workList = JSON.parse(JSON.stringify(res.data.work_list))
+      })
+
+      this.$http({
+        url: "/user/user_papers",
+        params: {
+          local_id: this.userId
+        }
+      }).then(res => {
+        this.$set(this.paperList, 'Ref', JSON.parse(JSON.stringify(res.data.paper_list)).slice(0, 20))
+        for (let i = 0; i < this.paperList.Ref.length; i++)
+          this.paperList.Clickable.push(1)
+      })
+    },
+    renderSvg () {
+      this.$http({
+        url: "/api/ptrend",
+        params: {
+          local_id: this.userId
+        }
+      }).then(res => {
+        let i = 0
+        for (const item of res.data.trend) {
+          this.$set(this.citationTrend, i, {time: item.year, value: item.citation_count})
+          i++
+        }
+        return new Promise(resolve => resolve())
+      }).then(res => {
+        const svg = this.$refs["cited-trend"]
+        // const chart = new LineChart({
+        //   target: svg,
+        //   width: 320,
+        //   height: 200,
+        //   xTicks: 3,
+        //   yTicks: 3
+        // })
+        const svgData = JSON.parse(JSON.stringify(this.citationTrend))
+        // chart.render(svgData)
+        renderLineChart(svg, svgData)
+      })
+    }
   }
 }
 </script>
@@ -193,7 +212,7 @@ export default {
 }
 .history-container {
   position: relative;
-  h2 {
+  &>h2 {
     display: inline-block;
     font-size: 20px;
     margin: 16px 20px;

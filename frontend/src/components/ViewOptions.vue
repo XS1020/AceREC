@@ -19,7 +19,6 @@ export default {
   },
   methods: {
     setOption (index) {
-      console.log(index)
       this.selectedOption = index
     }
   }

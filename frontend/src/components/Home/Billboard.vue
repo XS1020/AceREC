@@ -1,17 +1,19 @@
 <template>
   <div class="billboard-container clearfix">
     <div class="billboard-col">
-      <img :src="coverSrc" alt="" class="billboard-cover"/>
+      <img :src="data.imgurl" alt="" class="billboard-cover"/>
     </div>
     <div class="billboard-col">
-      <h2 class="billboard-title"> {{title}} </h2>
-      <span class="billboard-author"> by {{author}} </span>
+      <h2 class="billboard-title"> {{data.text}} </h2>
+      <span class="billboard-author"> {{data.time}} </span>
       <ul class="billboard-star clearfix">
         <li class="active" v-for="count in stars"><i class="fa fa-star"/></li>
         <li v-for="count in 5-stars"><i class="fa fa-star"/></li>
         <li class="views"> {{views}} Views </li>
       </ul>
-      <p> {{desc}} </p>
+      <span class="desc" v-for="news in data.desc">
+        {{news}}
+      </span>
       <button class="see-paper-btn">See This Paper</button>
     </div>
   </div>
@@ -20,6 +22,7 @@
 <script>
 export default {
   name: "Billboard",
+  props: ['data'],
   data () {
     return {
       desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non odio ac sapien maximus malesuada non a tellus. Integer et tempor orci, vel mollis urna. Nullam rutrum neque fermentum dui volutpat, a faucibus nulla bibendum.",
@@ -97,5 +100,13 @@ export default {
   width: 80%;
   transform: translate3d(50px, 50px, 100px);
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+}
+.desc {
+  font-size: 16px;
+  font-weight: 400;
+  display: block;
+  color: #e7e7e7;
+  margin: 10px;
+  padding-left: 20px;
 }
 </style>

@@ -4,7 +4,7 @@
     <div class="clearfix">
       <div class="sidebar-content">
         <div class="featured-items">
-          <h2> Author of the week </h2>
+          <h2> Recommended Authors </h2>
           <AuthorInfo/>
           <AuthorInfo/>
         </div>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div @click="jumpToUser">
     <img :src="imgurl" alt="">
     <div class="scholar-info-container">
       {{name}}
@@ -35,6 +35,11 @@ export default {
       name: "",
       affiliation: "",
       imgurl: ""
+    }
+  },
+  methods: {
+    jumpToUser () {
+      this.$router.push('/profile/' + this.userId)
     }
   }
 }

@@ -6,6 +6,7 @@
 <!--    />-->
     <Billboard class="carousel-item"
         v-for="(item, index) in items"
+        :data="item"
         :style="{left: (50 * index - 25) + '%',
                   backgroundColor: color[index + 1],
                   transform: 'translateX(' + 100 * (displayItemIdx - defaultItemIdx) + '%)'
@@ -35,7 +36,13 @@ export default {
       color: ['#FBADAF', '#ECB7D4', '#91D3E1', "#2978b5"],
       items: [
         {
-          text: "100",
+          text: "CVPR: Internaltional Conference on Computer Vision and Pattern Recogintion",
+          imgurl: require('../../assets/CVPR.png'),
+          desc: ["05/26 - Paper Presentation Requirements for CVPR 2021 available\n",
+              "05/26 - CVPR'21 is accepting applicants for DEI registration waivers\n",
+              "5/14 - The 24 hour Main Conference, Workshop and Tutorial schedules have been posted",
+              "03/25 - Media information is available"],
+          time: "June 19th to June 25th"
         },
         {
           text: "200",
