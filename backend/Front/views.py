@@ -7,7 +7,9 @@ import json
 import pysolr
 from apis.utils import Get_Paper_Ref
 from Const_Var import Paper_Subset
-
+from Const_Var import Author_Subset
+from random import shuffle
+from apis.utils import Local_to_Remote
 
 def MainPage(request):
     Recom = [
@@ -102,3 +104,23 @@ def Recomend_and_cite_Paper_Page(request):
     Ans['Clickable'] = [1 if x in Paper_Subset else 0 for x in Ans['Ref']]
 
     return JsonResponse(Ans)
+
+
+def Recomend_Author(request):
+    Data = request.GET
+    if not Data:
+        return HttpResponseBadRequest("No Data Found")
+
+    local_id = Data.get('local_id', None)
+    if local_id is None:
+        As = list(Author_Subset)
+        shuffle(As)
+        return JsonResponse({"Rec_Authors": As[:5]})
+
+    try:
+        local_id = int(Data['local_id'])
+    except ValueError as e:
+        return HttpResponseNotAllowed("Not Int local id")
+
+
+

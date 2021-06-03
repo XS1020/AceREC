@@ -5,6 +5,7 @@ import datetime
 import math
 from random import shuffle
 from pixie_random_walks import pixie_random_walk_only_author
+from Const_Var import History_Graph
 
 Q1_TIME_OUT = 10 * 60 * 60
 
@@ -60,6 +61,14 @@ def Qry_Field(field_id):
 	return Reclist[:30]
 
 
-def Recomend_Author_by_Author(local_id, wanted_num=10, threshold_author=50):
+def Recomend_Author_by_Author(remote_id, wanted_num=20, threshold_author=50):
+    History_Graph.Update_Info()
     cache_user_candidates = dict()
     cache_paper_candidates = dict()
+    current_Date = datetime.date.today()
+    return pixie_random_walk_only_author(
+        History_Graph.User_History, History_Graph.Rev_History, 
+        cache_user_candidates, cache_paper_candidates, 
+        remote_id, wanted_num, current_Date, 
+        threshold_author=threshold_author
+    )

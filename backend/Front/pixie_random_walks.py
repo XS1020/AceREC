@@ -63,7 +63,8 @@ def random_walk_according_to_time_new(adj_list, idx, cache, current_date):
         return adj_list[idx][random_by_prob(cache[idx])][0]
     prob = []
     for cand in adj_list[idx]:
-        prob.append(math.ceil(34/(current_date - cand[1] + 5)))
+        timegap = (current_date - cand[1]).days + 5
+        prob.append(math.ceil(34 / timegap))
     prob = np.array(prob) / np.sum(prob)
     cache[idx] = prob
     return adj_list[idx][random_by_prob(prob)][0]
