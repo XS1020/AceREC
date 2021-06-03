@@ -53,7 +53,8 @@ def random_walk_according_to_time(adj_list, idx, cache, current_date):
     candidate_pool = []
     for cand_idx, ttt in adj_list[idx]:
         # candidate_pool += [cand_idx] * weight(ttt)
-        candidate_pool += [cand_idx] * math.ceil(34/(current_date - ttt + 5))
+        timegap = (current_date - ttt).days + 5
+        candidate_pool += [cand_idx] * math.ceil(34 / timegap)
     cache[idx] = candidate_pool
     return candidate_pool[random.randint(0, len(candidate_pool)-1)]
 
@@ -124,13 +125,14 @@ def pixie_random_walk(
 
 def pixie_random_walk_only_paper(
     board_to_pin, pin_to_board, cache_user_candidates, cache_paper_candidates,
-    userid, chosen_paper_num, current_date, alpha=0.5, threshold_paper=10
+    userid, chosen_paper_num, current_date, alpha=0.5, threshold_paper=10,
+    max_epoch=100000
 ):
     userboard = set([tpl[0] for tpl in board_to_pin[userid]])
     chosen_paper = set()
     count_paper = dict()
     epoch = 0
-    while len(chosen_paper) < chosen_paper_num:
+    while len(chosen_paper) < chosen_paper_num and epoch < max_epoch:
         # print(epoch, len(chosen_paper), len(chosen_author))
         epoch += 1
         curpaperid = random_walk_according_to_time(
@@ -159,13 +161,14 @@ def pixie_random_walk_only_paper(
 def pixie_random_walk_only_author(
     board_to_pin, pin_to_board, cache_user_candidates,
     cache_paper_candidates, userid, chosen_author_num,
-    current_date, alpha=0.5, threshold_author=50
+    current_date, alpha=0.5, threshold_author=50,
+    max_epoch=10000
 ):
     userboard = set([tpl[0] for tpl in board_to_pin[userid]])
     chosen_author = set()
     count_author = dict()
     epoch = 0
-    while len(chosen_author) < chosen_author_num:
+    while len(chosen_author) < chosen_author_num and epoch < max_epoch:
         # print(epoch, len(chosen_paper), len(chosen_author))
         epoch += 1
         curpaperid = random_walk_according_to_time(
