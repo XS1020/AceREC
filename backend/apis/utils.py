@@ -352,3 +352,26 @@ def Get_Person_Cite_Count(personid):
     Ans = cursor.fetchone()
     close_conn(conn, cursor)
     return Ans
+
+
+def Get_Person_Record(local_id, period=30):
+    TimeGap = datetime.timedelta(days=period)
+    Last_Date = datetime.datetime.now() - TimeGap
+
+    Recs = Record.objects.filter(
+        updated_time__gte=Last_Date,
+        local_id=local_id, rtype=2
+    )
+    Datas = {}
+    for rec in Recs:
+        utime = rec.updated_time
+        tkey = '{} + {}'.format(rec.paper_id, utime.date())
+        print(tkey)
+        Datas[tkey] = {
+            'paperid': rec.paper_id,
+            'time': utime
+        }
+
+    Vs = list(Datas.values())
+    Vs.sort(key=lambda x: x['time'], reverse=True)
+    return Vs

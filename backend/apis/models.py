@@ -18,6 +18,6 @@ class Record(models.Model):
     rtype = models.IntegerField(choices=rectypes, default=1)
 
     class Meta:
-        ordering = ['updated_time']
+        ordering = ['-updated_time']
 
 
