@@ -118,7 +118,8 @@ def user_signup(request):
         pass
     else:
         models.User_Token.objects.create(
-            local_id=local_id, token=token, update_time=login_time)
+            local_id=local_id, token=token, update_time=login_time
+        )
     info = dict()
     info['local_id'] = local_id
     info['remote_id'] = -1
