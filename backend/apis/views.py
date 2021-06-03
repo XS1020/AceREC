@@ -181,7 +181,7 @@ def Add_View_recoed(request):
         return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
 
     remote_id = Local_to_Remote(local_id)
-    if remote_id < 0:
+    if remote_id < -1:
         return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
 
     Token = request.META.get('HTTP_TOKEN', "")
@@ -229,7 +229,7 @@ def Add_Click_record(request):
         return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
 
     remote_id = Local_to_Remote(local_id)
-    if remote_id < 0:
+    if remote_id < -1:
         return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
 
     Token = request.META.get('HTTP_TOKEN', "")
@@ -448,3 +448,4 @@ def Author_Cite_Count(request):
 def ctoken(request):
     token = get_token(request=request)
     return JsonResponse({'token': token})
+

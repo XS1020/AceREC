@@ -4,6 +4,7 @@ import datetime
 import json
 from User.models import User_Info
 from collections import Iterable
+from .models import Record
 
 
 def Get_Conn_Paper():
@@ -258,25 +259,25 @@ def Get_Paper_Keyword(
 
 def Remote_to_Local(remote_ids):
     if isinstance(remote_ids, Iterable):
-        Ans = {x: -1 for x in remote_ids}
+        Ans = {x: -5 for x in remote_ids}
         auser = User_Info.objects.filter(remote_id__in=list(remote_ids))
         for lin in auser:
             Ans[lin.remote_id] = lin.local_id
     else:
         auser = User_Info.objects.filter(remote_id=remote_ids)
-        Ans = -1 if len(auser) < 1 else auser[0].local_id
+        Ans = -5 if len(auser) < 1 else auser[0].local_id
     return Ans
 
 
 def Local_to_Remote(Local_ids):
     if isinstance(Local_ids, Iterable):
-        Ans = {x: -1 for x in Local_ids}
+        Ans = {x: -5 for x in Local_ids}
         auser = User_Info.objects.filter(local_id__in=list(Local_ids))
         for lin in auser:
             Ans[lin.local_id] = lin.remote_id
     else:
         auser = User_Info.objects.filter(local_id=Local_ids)
-        Ans = -1 if len(auser) < 1 else auser[0].remote_id
+        Ans = -5 if len(auser) < 1 else auser[0].remote_id
     return Ans
 
 
