@@ -22,10 +22,12 @@ LOGIN_TIME_OUT = 60 * 60
 
 # Create your views here.
 
+
 def generate_token(name, t):
     input = name + str(t) + str(datetime.datetime.now())
     token = hashlib.md5(input.encode('utf-8')).hexdigest()
     return token
+
 
 def user_login(request):
     req = request.GET
@@ -50,10 +52,13 @@ def user_login(request):
     if u.password == pwd:
         login_time = int(time.time())
         token = generate_token(u.user_name, login_time)
-        if models.User_Token.objects.filter(local_id=u.local_id).update(token=token, update_time=login_time):
+        if models.User_Token.objects.filter(
+            local_id=u.local_id
+        ).update(token=token, update_time=login_time):
             pass
         else:
-            models.User_Token.objects.create(local_id=u.local_id, token=token, update_time=login_time)
+            models.User_Token.objects.create(
+                local_id=u.local_id, token=token, update_time=login_time)
         info['local_id'] = u.local_id
         info['remote_id'] = u.remote_id
         info['token'] = token
@@ -61,6 +66,7 @@ def user_login(request):
     else:
         return HttpResponse('User name or password wrong!', status=401)
     return JsonResponse(info)
+
 
 def user_signup(request):
     req = request.GET
@@ -106,10 +112,13 @@ def user_signup(request):
 
     login_time = int(time.time())
     token = generate_token(u_name, login_time)
-    if models.User_Token.objects.filter(local_id=local_id).update(token=token, update_time=login_time):
+    if models.User_Token.objects.filter(
+        local_id=local_id
+    ).update(token=token, update_time=login_time):
         pass
     else:
-        models.User_Token.objects.create(local_id=local_id, token=token, update_time=login_time)
+        models.User_Token.objects.create(
+            local_id=local_id, token=token, update_time=login_time)
     info = dict()
     info['local_id'] = local_id
     info['remote_id'] = -1
@@ -117,6 +126,7 @@ def user_signup(request):
     info['user_name'] = u_name
 
     return JsonResponse(info)
+
 
 def get_user_info(request):
     req = request.GET
@@ -197,6 +207,7 @@ def get_user_papers(request):
 
     return JsonResponse(info)
 
+
 def get_user_edu_list(request):
     req = request.GET
 
@@ -229,6 +240,7 @@ def get_user_edu_list(request):
 
     return JsonResponse(info)
 
+
 def get_user_work_list(request):
     req = request.GET
 
@@ -245,7 +257,8 @@ def get_user_work_list(request):
     except ValueError:
         return HttpResponseBadRequest('Invalid local ID!')
 
-    works = models.User_Work.objects.filter(local_id=local_id).order_by('-year')
+    works = models.User_Work.objects.filter(
+        local_id=local_id).order_by('-year')
     work_list = []
     for work in works:
         w = dict()
@@ -260,6 +273,7 @@ def get_user_work_list(request):
     }
 
     return JsonResponse(info)
+
 
 def get_user_related_authors(request):
     req = request.GET
@@ -314,6 +328,7 @@ def get_user_related_authors(request):
 
     return JsonResponse(info)
 
+
 def get_user_info_to_update(request):
     req = request.GET
 
@@ -365,6 +380,7 @@ def get_user_info_to_update(request):
 
     return JsonResponse(info)
 
+
 @csrf_exempt
 def update_user_info(request):
     req = request.POST
@@ -390,7 +406,7 @@ def update_user_info(request):
         return HttpResponseBadRequest('Invalid remote ID!')
 
     name = req.get('name', None)
-    if namw is None:
+    if name is None:
         return HttpResponseBadRequest('Need old password!')
 
     password = req.get('old_password', None)
@@ -430,19 +446,24 @@ def update_user_info(request):
             if password != u.password:
                 return HttpResponse('Wrong Password!', status=401)
             else:
-                u.update(password=new_password)
+                u.password = new_password
+
+                # u.update(password=new_password)
     else:
         print("Password is not str!")
 
     if isinstance(name, str):
         if name != '':
-            u.update(name=name)
+            # u.update(name=name)
+            u.name = name
 
     if isinstance(research_list, str):
         if research_list != '':
             research_list = research_list.split(",")
             research_list = "_".join(research_list)
-            u.update(research_list=research_list)
+            # u.update(research_list=research_list)
+            u.research_list = research_list
+    u.save()
 
     new_field_list = []
     if isinstance(field_list, str):
