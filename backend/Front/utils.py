@@ -4,6 +4,7 @@ from apis.utils import Get_Conn_Analysis, close_conn
 import datetime
 import math
 from random import shuffle
+from pixie_random_walks import pixie_random_walk_only_author
 
 Q1_TIME_OUT = 10 * 60 * 60
 
@@ -57,3 +58,8 @@ def Qry_Field(field_id):
 
 	shuffle(Reclist)
 	return Reclist[:30]
+
+
+def Recomend_Author_by_Author(local_id, wanted_num=10, threshold_author=50):
+    cache_user_candidates = dict()
+    cache_paper_candidates = dict()

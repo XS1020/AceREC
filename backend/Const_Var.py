@@ -1,6 +1,8 @@
 import json
 import os
 import pickle
+import datetime
+from apis.utils import Get_Person_Record, Remote_to_Local
 
 from backend.settings import BASE_DIR
 
@@ -16,3 +18,13 @@ with open(Paper_Subset_dir, 'rb') as Fin:
 
 with open(os.path.join(BASE_DIR, 'Author_IDs.pickle'), 'rb') as Fin:
     Author_Subset = pickle.load(Fin)
+
+class History_Info:
+    def __init__(self):
+        self.update_time = datetime.datetime.now()
+        self.User_History = {}
+        self.Rev_History = {}
+
+    def Fetch_Info(self):
+        Author_Local = Remote_to_Local(Author_Subset)
+        

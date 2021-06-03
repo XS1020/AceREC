@@ -366,7 +366,6 @@ def Get_Person_Record(local_id, period=30):
     for rec in Recs:
         utime = rec.updated_time
         tkey = '{} + {}'.format(rec.paper_id, utime.date())
-        print(tkey)
         Datas[tkey] = {
             'paperid': rec.paper_id,
             'time': utime

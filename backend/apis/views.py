@@ -475,4 +475,4 @@ def Get_User_Record(request):
     for lin in Records:
         lin['title'] = Pid2title[lin['paperid']]
 
-    return JsonResponse({'record': Records})
+    return JsonResponse({'record': Records[:20]})
