@@ -8,8 +8,11 @@ import pysolr
 from apis.utils import Get_Paper_Ref
 from Const_Var import Paper_Subset
 from Const_Var import Author_Subset
+from Const_Var import History_Graph
 from random import shuffle
 from apis.utils import Local_to_Remote
+from .utils import Recomend_Author_by_Author
+
 
 def MainPage(request):
     Recom = [
@@ -122,5 +125,13 @@ def Recomend_Author(request):
     except ValueError as e:
         return HttpResponseNotAllowed("Not Int local id")
 
+    remote_id = Local_to_Remote(local_id)
+    print(len(History_Graph.User_History.get(remote_id, [])))
+    if len(History_Graph.User_History.get(remote_id, [])) < 10:
+        As = list(Author_Subset)
+        shuffle(As)
+        return JsonResponse({"Rec_Authors": As[:5]})
 
-
+    else:
+        Rec_Authors = Recomend_Author_by_Author(remote_id, 20, 20)
+        return JsonResponse({'Rec_Authors': [x[0] for x in Rec_Authors]})

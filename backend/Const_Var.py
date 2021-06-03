@@ -43,7 +43,7 @@ class History_Info:
         Rec_Month = Record.objects.filter(
             updated_time__gte=Last_Date,
             rtype=2
-        )
+        ).exclude(remote_id=-1)
         His = {}
         for lin in tqdm(Rec_Month):
             if lin.remote_id not in His:
@@ -70,6 +70,12 @@ class History_Info:
             self.Fetch_Info()
             self.update_time = datetime.datetime.now()
 
+    def _print(self):
+        print(self.User_History)
+        print(self.Rev_History)
+
 
 
 History_Graph = History_Info()
+
+# History_Graph._print()

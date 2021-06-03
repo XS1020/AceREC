@@ -14,6 +14,7 @@ from .views import Cite_Card_Info
 from .views import Related_Author
 from .views import Author_Cite_Count
 from .views import Get_User_Record
+from Front.views import Recomend_Author
 
 urlpatterns = [
     path('CardInfo', Main_Page_Card_Info),
@@ -30,5 +31,6 @@ urlpatterns = [
     path('citecardinfo', Cite_Card_Info),
     path('relatedauthor', Related_Author),
     path('authorcitecount', Author_Cite_Count),
-    path('userrecord', Get_User_Record)
+    path('userrecord', Get_User_Record),
+    path('recauthor', Recomend_Author)
 ]

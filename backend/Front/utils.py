@@ -4,7 +4,7 @@ from apis.utils import Get_Conn_Analysis, close_conn
 import datetime
 import math
 from random import shuffle
-from pixie_random_walks import pixie_random_walk_only_author
+from .pixie_random_walks import pixie_random_walk_only_author
 from Const_Var import History_Graph
 
 Q1_TIME_OUT = 10 * 60 * 60
@@ -26,7 +26,7 @@ def ReQuery(field):
         subx = [str(t['paper_id']) for t in paper_info_list[x: x + walk_leng]]
         cursor.execute(
             'SELECT paper_id, citation_count from am_paper_analysis\
-        	where paper_id in ({})'.format(','.join(subx))
+            where paper_id in ({})'.format(','.join(subx))
         )
         for lin in cursor:
             Cite_cnt[lin[0]] = lin[1]
@@ -43,22 +43,22 @@ def ReQuery(field):
 def Qry_Field(field_id):
     Rec_list = Cite_Rec_Cache.objects.filter(field_id=field_id)
     if len(Rec_list) == 0:
-    	Reclist = ReQuery(field_id)
-    	for lin in Reclist:
-    		Cite_Rec_Cache.objects.create(field_id=field_id, paper_id=lin)
+        Reclist = ReQuery(field_id)
+        for lin in Reclist:
+            Cite_Rec_Cache.objects.create(field_id=field_id, paper_id=lin)
 
     else:
-    	TimeGap = datetime.datetime.now() - Rec_list[0].Update_time
-    	if TimeGap.days > 0 or TimeGap.seconds > Q1_TIME_OUT:
-    		Reclist = ReQuery(field_id)
-	    	for lin in Reclist:
-	    		Cite_Rec_Cache.objects.create(field_id=field_id, paper_id=lin)
+        TimeGap = datetime.datetime.now() - Rec_list[0].Update_time
+        if TimeGap.days > 0 or TimeGap.seconds > Q1_TIME_OUT:
+            Reclist = ReQuery(field_id)
+            for lin in Reclist:
+                Cite_Rec_Cache.objects.create(field_id=field_id, paper_id=lin)
 
-	    else:
-	    	Reclist = [lin.paper_id for lin in Rec_list]
+        else:
+            Reclist = [lin.paper_id for lin in Rec_list]
 
-	shuffle(Reclist)
-	return Reclist[:30]
+    shuffle(Reclist)
+    return Reclist[:30]
 
 
 def Recomend_Author_by_Author(remote_id, wanted_num=20, threshold_author=50):
