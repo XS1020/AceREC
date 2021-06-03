@@ -8,6 +8,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.http import HttpResponseBadRequest
+from django.views.decorators.csrf import csrf_exempt
 import pygame
 import numpy as np
 from pypinyin import lazy_pinyin
@@ -358,6 +359,7 @@ def get_user_info_to_update(request):
 
     return JsonResponse(info)
 
+@csrf_exempt
 def update_user_info(request):
     req = request.POST
 
