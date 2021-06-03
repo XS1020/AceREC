@@ -309,3 +309,152 @@ def get_user_related_authors(request):
     }
 
     return JsonResponse(info)
+
+def get_user_info_to_update(request):
+    req = request.GET
+
+    if not req:
+        return HttpResponseBadRequest('No Information!')
+
+    local_id = req.get('local_id', None)
+
+    if local_id is None:
+        return HttpResponseBadRequest('Need local ID!')
+
+    try:
+        local_id = int(local_id)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid local ID!')
+
+    try:
+        u = models.User_Token.objects.get(local_id=local_id)
+    except models.User_Token.DoesNotExist:
+        return HttpResponse('Need login!', status=401)
+    this_token = request.META.get('HTTP_TOKEN', '')
+    if this_token != u.token:
+        return HttpResponse('Unauthorlized!', status=401)
+    if time.time() - u.update_time > LOGIN_TIME_OUT:
+        return HttpResponse('Unauthorlized!', status=401)
+
+    try:
+        u = models.User_Info.objects.get(local_id=local_id)
+    except models.User_Info.DoesNotExist:
+        return HttpResponseBadRequest('No such user!')
+
+    name = u.name
+    research_list = u.research_list
+    research_list = research_list.split("_")
+
+    field_list = []
+    fields = models.User_Interest.objects.filter(local_id=local_id)
+    for field in fields:
+        field_list.append(field.interest_field)
+
+    info = {
+        'name': name,
+        'research_list': research_list,
+        'field_list': field_list
+    }
+
+    return JsonResponse(info)
+
+def update_user_info(request):
+    req = request.POST
+
+    if not req:
+        return HttpResponseBadRequest('No Information!')
+
+    local_id = req.get('local_id', None)
+    remote_id = req.get('remote_id', None)
+
+    if local_id is None:
+        return HttpResponseBadRequest('Need local ID!')
+    if remote_id is None:
+        return HttpResponseBadRequest('Need remote ID!')
+
+    try:
+        local_id = int(local_id)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid local ID!')
+    try:
+        remote_id = int(remote_id)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid remote ID!')
+
+    password = req.get('old_password', None)
+    new_password = req.get('new_password', None)
+    if password is None:
+        return HttpResponseBadRequest('Need old password!')
+    if new_password is None:
+        return HttpResponseBadRequest('Need new password!')
+
+    research_list = req.get('research_list', None)
+    if research_list is None:
+        return HttpResponseBadRequest('Need research list!')
+    field_list = req.get('field_list', None)
+    if field_list is None:
+        return HttpResponseBadRequest('Need interest fields!')
+
+    try:
+        u = models.User_Token.objects.get(local_id=local_id)
+    except models.User_Token.DoesNotExist:
+        return HttpResponse('Need login!', status=401)
+    this_token = request.META.get('HTTP_TOKEN', '')
+    if this_token != u.token:
+        return HttpResponse('Unauthorlized!', status=401)
+    if time.time() - u.update_time > LOGIN_TIME_OUT:
+        return HttpResponse('Unauthorlized!', status=401)
+
+    try:
+        u = models.User_Info.objects.get(local_id=local_id)
+    except models.User_Info.DoesNotExist:
+        return HttpResponseBadRequest('No such user!')
+
+    if remote_id != u.remote_id:
+        return HttpResponse('Remote ID not match!', status=401)
+
+    if isinstance(password, str) and isinstance(new_password, str):
+        if password != '':
+            if password != u.password:
+                return HttpResponse('Wrong Password!', status=401)
+            else:
+                u.update(password=new_password)
+    else:
+        print("Password is not str!")
+
+    if isinstance(research_list, str):
+        if research_list != '':
+            research_list = research_list.split(",")
+            research_list = "_".join(research_list)
+            u.update(research_list=research_list)
+
+    new_field_list = []
+    if isinstance(field_list, str):
+        models.User_Interest.objects.filter(local_id=local_id).delete()
+        if field_list != '':
+            field_list = field_list.split(',')
+            field_list = list(set(field_list))
+            for field in field_list:
+                try:
+                    field = int(field)
+                except ValueError:
+                    print("Can't convert field to Integer")
+                    continue
+                # models.User_Interest.objects.create(
+                #     local_id=local_id,
+                #     remote_id=remote_id,
+                #     interest_field=field
+                # )
+                new_field_list.append(
+                    models.User_Interest(
+                        local_id=local_id,
+                        remote_id=remote_id,
+                        interest_field=field
+                    )
+                )
+    else:
+        print("Field list is not str!")
+    if len(new_field_list) > 0:
+        models.User_Interest.objects.bulk_create(new_field_list)
+
+    return HttpResponse('Update Succeed!', status=200)
