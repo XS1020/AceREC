@@ -445,7 +445,7 @@ def update_user_info(request):
     if isinstance(password, str) and isinstance(new_password, str):
         if password != '':
             if password != u.password:
-                return HttpResponse('Wrong Password!', status=401)
+                return HttpResponse('Wrong Password!', status=412)
             else:
                 u.password = new_password
 
