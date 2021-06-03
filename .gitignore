@@ -1,2 +1,3 @@
 backend/Static/pdf_img/*
 .vscode
+node_modules
