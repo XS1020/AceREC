@@ -3,17 +3,28 @@ from apis.models import Record
 from Const_Var import Author_Subset
 from tqdm import tqdm
 import datetime
+import pickle
+import os
+from backend.settings import BASE_DIR
 
-HIS_TIME_OUT = 120 * 60
+HIS_TIME_OUT = 12 * 60 * 60
 
 Author_Subset_List = list(Author_Subset)
 
 
 class History_Info:
-    def __init__(self):
+    def __init__(self, From_File=False):
         self.update_time = datetime.datetime.now()
         self.Is_New = True
         self.User_History, self.Rev_History = {}, {}
+        self.Upath = os.path.join(BASE_DIR, 'User_History.pickle')
+        self.Rpath = os.path.join(BASE_DIR, 'Rev_History.pickle')
+        if From_File:
+            with open(self.Upath, 'rb') as Fin:
+                self.User_History = pickle.load(Fin)
+            with open(self.Rpath, 'rb') as Fin:
+                self.Rev_History = pickle.load(Fin)
+            self.Is_New = False
 
     def Fetch_Info(self):
         print('[{}] Updateing Record Graph'.format(
@@ -49,13 +60,17 @@ class History_Info:
         Time_Delt = datetime.datetime.now() - self.update_time
         if self.Is_New or \
                 Time_Delt.days > 0 or Time_Delt.seconds > HIS_TIME_OUT:
+            self.Is_New = False
             self.Fetch_Info()
             self.update_time = datetime.datetime.now()
-            self.Is_New = False
+            with open(self.Upath, 'wb') as Fout:
+                pickle.dump(self.User_History, Fout)
+            with open(self.Rpath, 'wb') as Fout:
+                pickle.dump(self.Rev_History, Fout)
 
     def _print(self):
         print(self.User_History)
         print(self.Rev_History)
 
 
-History_Graph = History_Info()
+History_Graph = History_Info(From_File=True)

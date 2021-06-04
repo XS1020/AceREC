@@ -6,6 +6,7 @@ import datetime
 import math
 from random import shuffle
 from .pixie_random_walks import pixie_random_walk_only_author
+from .pixie_random_walks import pixie_random_walk_only_paper
 from Const_Data_Base import History_Graph
 from apis.models import Record
 from .models import Recom_Data, Embeddings
@@ -261,7 +262,6 @@ def Recomend_Author_by_Author(remote_id, wanted_num=20, threshold_author=50):
 
 
 def Rec_paper_by_His(remote_id):
-    History_Graph.Update_Info()
     cache_user_candidates = dict()
     cache_paper_candidates = dict()
     current_Date = datetime.date.today()
@@ -289,7 +289,8 @@ def Rec_by_User(local_id, remote_id, wanted_num=20):
 
     target_num = math.ceil(wanted_num * min(paper_cnt * 0.06, 0.6))
     paper_rec1 = Recommend_paper_by_Achieve(
-        remote_id) if remote_id >= 0 else []
+        remote_id
+    ) if remote_id >= 0 else []
     paper_rec1 = list(set(paper_rec1) - paperset)[:target_num]
 
     if debug:
@@ -299,6 +300,10 @@ def Rec_by_User(local_id, remote_id, wanted_num=20):
     His_Size = len(History_Graph.User_History.get(remote_id, []))
     paperrec2 = []
     wanted_num -= len(paper_rec1)
+
+    if debug:
+        print(His_Size)
+
     if His_Size > 10:
         target_num = math.ceil(wanted_num * min((His_Size - 5) * 0.1, 1))
         paperrec2 = Rec_paper_by_His(remote_id)

@@ -151,10 +151,10 @@ def Recomend_Author(request):
     if len(History_Graph.User_History.get(remote_id, [])) < 10:
         Tx = Random_Push_Author(5)
         Loc = Remote_to_Local(Tx)
-        return JsonResponse({'Rec_Authors': Loc[x] for x in Tx})
+        return JsonResponse({'Rec_Authors': [Loc[x] for x in Tx][:5]})
 
     else:
         Rec_Authors = Recomend_Author_by_Author(remote_id, 20, 20)
         Tx = [x[0] for x in Rec_Authors]
         Loc = Remote_to_Local(Tx)
-        return JsonResponse({'Rec_Authors': Loc[x] for x in Tx})
+        return JsonResponse({'Rec_Authors': [Loc[x] for x in Tx][:5]})

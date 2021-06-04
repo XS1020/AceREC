@@ -6,7 +6,7 @@ from django.db import models
 
 
 class Record(models.Model):
-    updated_time = models.DateTimeField(auto_now=True)
+    updated_time = models.DateTimeField(auto_now=True, db_index=True)
     paper_id = models.BigIntegerField(db_index=True)
     local_id = models.IntegerField(db_index=True)
     remote_id = models.BigIntegerField(db_index=True)
