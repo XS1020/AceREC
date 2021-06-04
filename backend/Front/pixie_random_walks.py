@@ -126,7 +126,7 @@ def pixie_random_walk(
 def pixie_random_walk_only_paper(
     board_to_pin, pin_to_board, cache_user_candidates, cache_paper_candidates,
     userid, chosen_paper_num, current_date, alpha=0.5, threshold_paper=10,
-    max_epoch=100000
+    max_epoch=500000
 ):
     userboard = set([tpl[0] for tpl in board_to_pin[userid]])
     chosen_paper = set()
@@ -162,7 +162,7 @@ def pixie_random_walk_only_author(
     board_to_pin, pin_to_board, cache_user_candidates,
     cache_paper_candidates, userid, chosen_author_num,
     current_date, alpha=0.5, threshold_author=50,
-    max_epoch=10000
+    max_epoch=50000
 ):
     userboard = set([tpl[0] for tpl in board_to_pin[userid]])
     chosen_author = set()

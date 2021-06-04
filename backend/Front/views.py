@@ -8,7 +8,7 @@ import pysolr
 from apis.utils import Get_Paper_Ref
 from Const_Var import Paper_Subset
 from Const_Var import Author_Subset
-from Const_Var import History_Graph
+from Const_Data_Base import History_Graph
 from random import shuffle
 from apis.utils import Local_to_Remote
 from .utils import Recomend_Author_by_Author
