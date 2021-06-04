@@ -462,6 +462,8 @@ def Get_User_Record(request):
     for lin in Records:
         lin['time'] = lin['time'].strftime("%Y-%m-%d %H:%M:%S")
         Pids.add(lin['paperid'])
+    if len(Pids) == 0:
+        return JsonResponse({'record': []})
 
     conn, cursor = Get_Conn_Paper()
     Pid2title = {}
