@@ -13,6 +13,7 @@ class History_Info:
     def __init__(self):
         self.update_time = datetime.datetime.now()
         self.Is_New = True
+        self.User_History, self.Rev_History = {}, {}
 
     def Fetch_Info(self):
         print('[{}] Updateing Record Graph'.format(
@@ -49,6 +50,7 @@ class History_Info:
         if self.Is_New or \
                 Time_Delt.days > 0 or Time_Delt.seconds > HIS_TIME_OUT:
             self.Fetch_Info()
+            print('ok')
             self.update_time = datetime.datetime.now()
             self.Is_New = False
 

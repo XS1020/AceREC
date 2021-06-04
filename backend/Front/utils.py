@@ -7,11 +7,12 @@ from random import shuffle
 from .pixie_random_walks import pixie_random_walk_only_author
 from Const_Data_Base import History_Graph
 from apis.models import Record
+from .models import Recom_Data, Embeddings
 
 
 Q1_TIME_OUT = 10 * 60 * 60
 
-
+import json
 def ReQuery(field, Candidate=100):
     paper_info_list = []
     Papers = Paper_Field.objects.filter(field_id=field)
@@ -38,7 +39,7 @@ def ReQuery(field, Candidate=100):
         x['score'] = Cite_cnt.get(x['paper_id'], 0) / \
             math.sqrt(Curr_year - x['year'] + 1)
 
-    paper_info_list.sort(key: lambda x: -x.get('score', 0))
+    paper_info_list.sort(key=lambda x: -x.get('score', 0))
     print(paper_info_list[:10])
 
     return paper_info_list[:Candidate]
@@ -84,11 +85,12 @@ def Qry_Field(field_id):
         TimeGap = datetime.datetime.now() - Rec_list[0].Update_time
         if TimeGap.days > 0 or TimeGap.seconds > Q1_TIME_OUT:
             Reclist = ReQuery(field_id)
-            for idx, rex in emunerate(Rec_list):
-                rex.paper_id = Reclist[idx]['paper_id']
-                rex.score = Reclist[idx]['score']
-                rex.save()
-
+            Rec_list.delete()
+            for lin in Reclist:
+                Cite_Rec_Cache.objects.create(
+                    field_id=field_id, paper_id=lin['paper_id'],
+                    score=lin.get('score', 0)
+                )
         else:
             Reclist = [{
                 'paper_id': lin.paper_id,
@@ -110,3 +112,20 @@ def Recomend_Author_by_Author(remote_id, wanted_num=20, threshold_author=50):
         remote_id, wanted_num, current_Date,
         threshold_author=threshold_author
     )
+
+def Qry_Dist_of_Paper(paper_id):
+    ocluster = Recom_Data.objects.filter(paper_id=paper_id)
+    if len(ocluster) == 0:
+        return []
+    bel = ocluster[0].belong
+    cluster = Recom_Data.objects.filter(belong=bel)
+    paper_id_list, pid2pos = [x.paper_id for x in cluster], {}
+
+    Embeds, Idx = [], 0
+    Emb_clu = Embeddings.objects.filter(paper_id__in=paper_id_list)
+    for x in Emb_clu:
+        Embeds.append(json.loads(x.Embedding))
+        pid2pos[x.paper_id] = Idx
+        Idx += 1
+
+
