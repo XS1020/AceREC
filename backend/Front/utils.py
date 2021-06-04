@@ -10,6 +10,10 @@ from Const_Data_Base import History_Graph
 from apis.models import Record
 from .models import Recom_Data, Embeddings
 import torch
+from tqdm import tqdm
+from Const_Var import Cheat_Embeddings, PaperId2Pos, PaperPos2Id
+
+import time
 
 
 Q1_TIME_OUT = 5 * 60 * 60
@@ -50,7 +54,7 @@ def ReQuery(field, Candidate=100):
 
 def Time_Desc(Cand):
     paper_ids = set([lin['paper_id'] for lin in Cand])
-    Last_Date = datetime.datetime.now() - datetime.timedelt(seconds=600)
+    Last_Date = datetime.datetime.now() - datetime.timedelta(seconds=600)
     recs = Record.objects.filter(
         paper_id__in=paper_ids,
         updated_time__gte=Last_Date
@@ -123,23 +127,30 @@ def Qry_Sim_of_Paper(paper_id, Candidate=50):
     if len(ocluster) == 0:
         return []
     bel = ocluster[0].belong
-    cluster = Recom_Data.objects.filter(belong=bel)
-    paper_id_list = [x.paper_id for x in cluster]
     pos2pid, pid2pos = {}, {}
 
+    Embeds = Cheat_Embeddings.get(bel, [])
+    if len(Embeds) == 0:
+        return []
+
+    pid2pos = PaperId2Pos[bel]
+    pos2pid = PaperPos2Id[bel]
+
+    """
     Embeds, Idx = [], 0
-    Emb_clu = Embeddings.objects.filter(paper_id__in=paper_id_list)
-    for x in Emb_clu:
+    Emb_clu = Embeddings.objects.filter(belong=bel)
+    for x in tqdm(Emb_clu):
         Embeds.append(json.loads(x.Embedding))
-        pid2pos[x.paper_id], pid2pos[Idx] = Idx, x.paper_id
+        pid2pos[x.paper_id], pos2pid[Idx] = Idx, x.paper_id
         Idx += 1
     if len(Embeds) == 0:
         return []
-    device = torch.device('cuda:0' if torch.cuda.is_available else 'cpu')
-    Embeds = torch.tensor(Embeds).to(device)
+    Embeds = torch.tensor(Embeds)
+    """
+
     self_Emb = Embeds[pid2pos[paper_id]]
     Similarity = torch.sum(Embeds * self_Emb, dim=1)
-    Ans = Similarity.topk(Candidate + 1, largest=True).to('cpu')
+    Ans = Similarity.topk(Candidate + 1, largest=True)
     Indexes = Ans.indices.to('cpu').detach().tolist()
     Vals = Ans.values.to('cpu').detach().tolist()
     Repo = []
@@ -149,24 +160,22 @@ def Qry_Sim_of_Paper(paper_id, Candidate=50):
                 'paper_id': pos2pid[Indexes[i]],
                 'score': Vals[i]
             })
-
     return Repo
 
 
-def Recommend_paper_by_paper(paper_id, wanted_num=10):
+def Recommend_paper_by_Sim(paper_id, wanted_num=10):
     Cache_info = Sim_Rec_Cache.objects.filter(
         paper_id=paper_id
     ).order_by('-Sim')
     Flag = False
-    if len(Cache_info) < wanted_num * 3:
+    if len(Cache_info) < wanted_num * 2:
         Flag = True
     else:
         TimeGap = datetime.datetime.now() - Cache_info[0].update_time
         if TimeGap.days > 0 or TimeGap.seconds > Q2_TIME_OUT:
             Flag = True
-
     if Flag:
-        Rec_list = Qry_Sim_of_Paper(paper_id, max(50, wanted_num * 3))
+        Rec_list = Qry_Sim_of_Paper(paper_id, max(50, wanted_num * 2))
         Cache_info.delete()
         for Rec in Rec_list:
             Sim_Rec_Cache.objects.create(
@@ -184,3 +193,21 @@ def Recommend_paper_by_paper(paper_id, wanted_num=10):
     Time_Desc(Rec_list)
     Rec_list.sort(key=lambda x: -x['score'])
     return Rec_list[:wanted_num]
+
+
+def Recommend_paper_by_paper(paper_id, wanted_num):
+    Sim_rec = Recommend_paper_by_Sim(paper_id, wanted_num)
+    Exact_part = []
+    if len(Sim_rec) < wanted_num:
+        ocluster = Recom_Data.objects.filter(paper_id=paper_id)
+        if len(ocluster) != 0:
+            bel = ocluster[0].belong
+            objs = Recom_Data.objects.filter(belong=bel)
+            pps = [x.paper_id for x in objs]
+            shuffle(pps)
+            Exact_part = pps[: wanted_num - len(Sim_rec)]
+
+    Ready = set([x['paper_id'] for x in Sim_rec] + Exact_part)
+    if paper_id in Ready:
+        Ready.remove(paper_id)
+    return list(Ready)

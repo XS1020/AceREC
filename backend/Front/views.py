@@ -12,6 +12,7 @@ from Const_Data_Base import History_Graph
 from random import shuffle
 from apis.utils import Local_to_Remote
 from .utils import Recomend_Author_by_Author
+from .utils import Recommend_paper_by_paper
 
 
 def MainPage(request):
@@ -101,9 +102,7 @@ def Recomend_and_cite_Paper_Page(request):
     except ValueError as e:
         return HttpResponseNotAllowed("Not Int paperid")
 
-    Recom = [
-        94747717, 172379530, 216802878, 223658030, 228111136
-    ]
+    Recom = Recommend_paper_by_paper(paper_id=paperid, wanted_num=10)
 
     Ans = {'Rec': Recom, 'Ref': []}
     Refs = Get_Paper_Ref(paperid)

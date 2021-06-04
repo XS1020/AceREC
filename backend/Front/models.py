@@ -33,6 +33,7 @@ class Embeddings(models.Model):
     paper_id = models.BigIntegerField(db_index=True)
     update_time = models.DateTimeField(auto_now=True)
     Embedding = models.CharField(max_length=2600)
+    belong = models.IntegerField(db_index=True, default=0)
 
     class Meta:
         ordering = ['paper_id']
