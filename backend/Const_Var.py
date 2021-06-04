@@ -32,5 +32,7 @@ with open(os.path.join(BASE_DIR, 'Paper_Id_Pos.pickle'), 'rb') as Fin:
 with open(os.path.join(BASE_DIR, 'Paper_Pos_Id.pickle'), 'rb') as Fin:
     PaperPos2Id = pickle.load(Fin)
 
+with open(os.path.join(BASE_DIR, 'Field_List.pickle'), 'rb') as Fin:
+    Field_list = pickle.load(Fin)
 
 print('[INFO] Done')

@@ -44,3 +44,4 @@ class Sim_Rec_Cache(models.Model):
     rec_id = models.BigIntegerField(db_index=False)
     Sim = models.FloatField(default=0)
     update_time = models.DateTimeField(auto_now=True)
+

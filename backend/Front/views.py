@@ -13,15 +13,33 @@ from random import shuffle
 from apis.utils import Local_to_Remote
 from .utils import Recomend_Author_by_Author
 from .utils import Recommend_paper_by_paper
+from Const_Var import Field_List
+from .utils import Qry_Field, Rec_by_User
 
 
 def MainPage(request):
-    Recom = [
-        94747717, 172379530, 216802878, 223658030, 228111136,
-        277256906, 448852786, 473532210, 111870135, 379921807,
-        94747717, 172379530, 216802878, 223658030, 228111136,
-        277256906, 448852786, 473532210, 111870135, 379921807
-    ]
+    
+    Data, Flag = request.GET, False
+    if not Data or 'local_id' not in Data:
+        Flag = True
+    else:
+        try:
+            local_id = int(Data['local_id'])
+        except ValueError as e:
+            return HttpResponseNotAllowed("Not Int Id")
+
+        remote_id = Local_to_Remote(local_id)
+        if remote_id < -1:
+            Flag = True
+
+    if Flag:
+        shuffle(Field_List)
+        Fs = Field_List[:2]
+        Ans = Qry_Field(Fs[0], 10) + Qry_Field(Fs[1], 10)
+        Recom = list(set(x['paperid'] for x in Ans))
+    else:
+        Recom = Rec_by_User(local_id, remote_id)
+
     dresponse = {
         'Rec': Recom
     }

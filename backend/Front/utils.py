@@ -12,15 +12,17 @@ from .models import Recom_Data, Embeddings
 import torch
 from tqdm import tqdm
 from Const_Var import Cheat_Embeddings, PaperId2Pos, PaperPos2Id
+from Const_Var import Field_List
 
 import time
+from User.models import User_Papers, User_Interest
 
 
 Q1_TIME_OUT = 5 * 60 * 60
 Q2_TIME_OUT = 10 * 60 * 60
 
 
-def ReQuery(field, Candidate=100):
+def ReQuery(field, Candidate=50):
     paper_info_list = []
     Papers = Paper_Field.objects.filter(field_id=field)
     for lin in Papers:
@@ -75,7 +77,7 @@ def Time_Desc(Cand):
         can['score'] *= Reduce_Fac[can['paper_id']]
 
 
-def Qry_Field(field_id):
+def Qry_Field(field_id, Number=10):
     Rec_list = Cite_Rec_Cache.objects.filter(
         field_id=field_id
     ).order_by('-score')
@@ -106,20 +108,7 @@ def Qry_Field(field_id):
 
     Time_Desc(Reclist)
     Reclist.sort(key=lambda x: -x['score'])
-    return Reclist[:30]
-
-
-def Recomend_Author_by_Author(remote_id, wanted_num=20, threshold_author=50):
-    History_Graph.Update_Info()
-    cache_user_candidates = dict()
-    cache_paper_candidates = dict()
-    current_Date = datetime.date.today()
-    return pixie_random_walk_only_author(
-        History_Graph.User_History, History_Graph.Rev_History,
-        cache_user_candidates, cache_paper_candidates,
-        remote_id, wanted_num, current_Date,
-        threshold_author=threshold_author
-    )
+    return Reclist[:Number]
 
 
 def Qry_Sim_of_Paper(paper_id, Candidate=50):
@@ -211,3 +200,109 @@ def Recommend_paper_by_paper(paper_id, wanted_num):
     if paper_id in Ready:
         Ready.remove(paper_id)
     return list(Ready)
+
+
+def Get_top_six(remote_id):
+    objs = User_Papers.objects.filter(remote_id=remote_id)
+    paper_id_list = [x.paper_id for x in objs]
+
+    conn, cursor = Get_Conn_Analysis()
+    cursor.execute(
+        'SELECT paper_id, citation_count from\
+        am_paper_analysis where paper_id in ({})\
+        order by citation_count desc'.format(
+            ','.join(str(x) for x in paper_id_list)
+        )
+    )
+    topsix = []
+    for lin in cursor:
+        topsix.append(lin[0])
+        if len(topsix) == 6:
+            break
+    close_conn(conn, cursor)
+
+    return topsix
+
+
+def Recommend_paper_by_Achieve(remote_id, start=64):
+    topsix = Get_top_six(remote_id)
+    Candidate = []
+    for x in topsix:
+        Candidate += Recommend_paper_by_Sim(x, start)
+        start = max(start // 2, 4)
+    Candidate = list(set(Candidate))
+    shuffle(Candidate)
+    return Candidate
+
+
+def recomemd_paper_by_interest(local_id, max_num=30):
+    objs = User_Interest.objects.filter(local_id)
+    interest_list = [x.interest_field for x in objs]
+    if interest_list == []:
+        shuffle(Field_List)
+        interest_list = Field_List[:2]
+    else:
+        interest_list = interest_list[:3]
+
+    Qrynum = math.ceil(max_num / 3)
+    Ans = []
+    for x in interest_list:
+        Ans += Qry_Field(x, Qrynum)
+
+    Ans = list(set(Ans))
+    shuffle(Ans)
+    return [x['paper_id'] for x in Ans[:max_num]]
+
+
+def Recomend_Author_by_Author(remote_id, wanted_num=20, threshold_author=50):
+    History_Graph.Update_Info()
+    cache_user_candidates = dict()
+    cache_paper_candidates = dict()
+    current_Date = datetime.date.today()
+    return pixie_random_walk_only_author(
+        History_Graph.User_History, History_Graph.Rev_History,
+        cache_user_candidates, cache_paper_candidates,
+        remote_id, wanted_num, current_Date,
+        threshold_author=threshold_author
+    )
+
+
+def Rec_paper_by_His(remote_id):
+    History_Graph.Update_Info()
+    cache_user_candidates = dict()
+    cache_paper_candidates = dict()
+    current_Date = datetime.date.today()
+    return pixie_random_walk_only_paper(
+        History_Graph.User_History, History_Graph.Rev_History,
+        cache_user_candidates, cache_paper_candidates,
+        remote_id, 20, current_Date
+    )
+
+
+def Rec_by_User(local_id, remote_id, wanted_num=20):
+    History_Graph.Update_Info()
+    papers = User_Papers.objects.filter(remote_id=remote_id)
+    paperset = set(x.paper_id for x in papers)
+    paper_cnt, owanted = len(paperset), wanted_num
+
+    target_num = math.ceil(wanted_num * min(paper_cnt * 0.06, 0.6))
+    paper_rec1 = Recommend_paper_by_Achieve(
+        remote_id) if remote_id >= 0 else []
+    paper_rec1 = list(set(paper_rec1) - paperset)[:target_num]
+
+    His_Size = len(History_Graph.User_History.get(remote_id, []))
+    paperrec2 = []
+    wanted_num -= len(paper_rec1)
+    if His_Size > 10:
+        target_num = math.ceil(wanted_num * min((His_Size - 5) * 0.1, 1))
+        paperrec2 = Rec_paper_by_His(remote_id)
+        paperrec2 = list(set(paperrec2) - paperset)
+
+    wanted_num -= len(paperrec2)
+    wanted_num = max(wanted_num, 1)
+    paperrec3 = recomemd_paper_by_interest(local_id, owanted)
+    paperrec3 = list(set(paperrec3) - paperset)
+
+    paper_all = list(set(paper_rec1 + paperrec2 + paperrec3))
+    shuffle(paper_all)
+    return paper_all[:owanted]
