@@ -18,7 +18,7 @@ from .utils import Qry_Field, Rec_by_User
 
 
 def MainPage(request):
-    
+
     Data, Flag = request.GET, False
     if not Data or 'local_id' not in Data:
         Flag = True
@@ -36,7 +36,7 @@ def MainPage(request):
         shuffle(Field_List)
         Fs = Field_List[:2]
         Ans = Qry_Field(Fs[0], 10) + Qry_Field(Fs[1], 10)
-        Recom = list(set(x['paperid'] for x in Ans))
+        Recom = list(set(x['paper_id'] for x in Ans))
     else:
         Recom = Rec_by_User(local_id, remote_id)
 
@@ -157,4 +157,3 @@ def Recomend_Author(request):
             'Rec_Authors': [x[0] for x in Rec_Authors]
             if len(Rec_Authors) > 0 else Random_Push_Author(5)
         })
-

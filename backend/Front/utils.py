@@ -34,7 +34,7 @@ def ReQuery(field, Candidate=50):
     conn, cursor = Get_Conn_Analysis()
     walk_leng, totlen = 5000, len(paper_info_list)
     Cite_cnt = {}
-    for x in range(0, totlen, walk_leng):
+    for x in tqdm(range(0, totlen, walk_leng)):
         subx = [str(t['paper_id']) for t in paper_info_list[x: x + walk_leng]]
         cursor.execute(
             'SELECT paper_id, citation_count from am_paper_analysis\
@@ -49,8 +49,6 @@ def ReQuery(field, Candidate=50):
             math.sqrt(Curr_year - x['year'] + 1)
 
     paper_info_list.sort(key=lambda x: -x.get('score', 0))
-    print(paper_info_list[:10])
-
     return paper_info_list[:Candidate]
 
 
@@ -230,13 +228,13 @@ def Recommend_paper_by_Achieve(remote_id, start=64):
     for x in topsix:
         Candidate += Recommend_paper_by_Sim(x, start)
         start = max(start // 2, 4)
-    Candidate = list(set(Candidate))
+    Candidate = list(set(x['paper_id'] for x in Candidate))
     shuffle(Candidate)
     return Candidate
 
 
 def recomemd_paper_by_interest(local_id, max_num=30):
-    objs = User_Interest.objects.filter(local_id)
+    objs = User_Interest.objects.filter(local_id=local_id)
     interest_list = [x.interest_field for x in objs]
     if interest_list == []:
         shuffle(Field_List)
@@ -244,10 +242,14 @@ def recomemd_paper_by_interest(local_id, max_num=30):
     else:
         interest_list = interest_list[:3]
 
+    print("List", interest_list)
+
     Qrynum = math.ceil(max_num / 3)
     Ans = []
     for x in interest_list:
+        t1 = time.time()
         Ans += Qry_Field(x, Qrynum)
+        print(x, time.time() - t1)
 
     Ans = list(set(Ans))
     shuffle(Ans)
@@ -281,14 +283,21 @@ def Rec_paper_by_His(remote_id):
 
 def Rec_by_User(local_id, remote_id, wanted_num=20):
     History_Graph.Update_Info()
+    Start_time = time.time()
     papers = User_Papers.objects.filter(remote_id=remote_id)
     paperset = set(x.paper_id for x in papers)
     paper_cnt, owanted = len(paperset), wanted_num
+
+    time1 = time.time()
+    print("T1:", time1 - Start_time)
 
     target_num = math.ceil(wanted_num * min(paper_cnt * 0.06, 0.6))
     paper_rec1 = Recommend_paper_by_Achieve(
         remote_id) if remote_id >= 0 else []
     paper_rec1 = list(set(paper_rec1) - paperset)[:target_num]
+
+    time2 = time.time()
+    print("T2:", time2 - time1)
 
     His_Size = len(History_Graph.User_History.get(remote_id, []))
     paperrec2 = []
@@ -298,10 +307,17 @@ def Rec_by_User(local_id, remote_id, wanted_num=20):
         paperrec2 = Rec_paper_by_His(remote_id)
         paperrec2 = list(set(paperrec2) - paperset)
 
+    time3 = time.time()
+    print("T3:", time3 - time2)
+
     wanted_num -= len(paperrec2)
     wanted_num = max(wanted_num, 1)
     paperrec3 = recomemd_paper_by_interest(local_id, owanted)
     paperrec3 = list(set(paperrec3) - paperset)
+
+    time4 = time.time()
+    print("T4:", time4 - time3)
+
 
     paper_all = list(set(paper_rec1 + paperrec2 + paperrec3))
     shuffle(paper_all)

@@ -50,7 +50,6 @@ class History_Info:
         if self.Is_New or \
                 Time_Delt.days > 0 or Time_Delt.seconds > HIS_TIME_OUT:
             self.Fetch_Info()
-            print('ok')
             self.update_time = datetime.datetime.now()
             self.Is_New = False
 

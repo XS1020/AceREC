@@ -18,6 +18,7 @@ class Paper_Field(models.Model):
     paper_id = models.BigIntegerField(db_index=True)
     field_id = models.IntegerField(db_index=True)
     year = models.IntegerField(default=2008)
+    cite_cnt = models.IntegerField()
 
 
 class Recom_Data(models.Model):
