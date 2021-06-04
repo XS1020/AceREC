@@ -49,8 +49,8 @@ def Time_Desc(Cand):
     )
     Min_Time_Gap, Reduce_Fac = {}, {x: 1 for x in paper_ids}
     for rec in recs:
-        Max_Time_Gap["{}+{}".format(rec.paper_id, rec.rtype)] = min(
-            Min_Time_Gap.get(rec_paper_id, 20),
+        Min_Time_Gap["{}+{}".format(rec.paper_id, rec.rtype)] = min(
+            Min_Time_Gap.get(rec.paper_id, 20),
             (datetime.datetime.now() - rec.updated_time).seconds / 60
         )
 
