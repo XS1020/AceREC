@@ -30,7 +30,7 @@ def ReQuery(field, Candidate=50):
         order by cite_cnt desc limit 10000', [field]
     )
     Curr_year = datetime.datetime.now().year
-    for lin in tqdm(Papers):
+    for lin in Papers:
         paper_info_list.append({
             'paper_id': lin.paper_id, 'year': lin.year,
             'score': lin.cite_cnt / math.sqrt(Curr_year - lin.year + 1)
@@ -42,7 +42,7 @@ def ReQuery(field, Candidate=50):
 
 def Time_Desc(Cand):
     paper_ids = set([lin['paper_id'] for lin in Cand])
-    Last_Date = datetime.datetime.now() - datetime.timedelta(seconds=600)
+    Last_Date = datetime.datetime.now() - datetime.timedelta(seconds=6000)
     recs = Record.objects.filter(
         paper_id__in=paper_ids,
         updated_time__gte=Last_Date
@@ -51,13 +51,13 @@ def Time_Desc(Cand):
     for rec in recs:
         Min_Time_Gap["{}+{}".format(rec.paper_id, rec.rtype)] = min(
             Min_Time_Gap.get(rec.paper_id, 20),
-            (datetime.datetime.now() - rec.updated_time).seconds / 60
+            (datetime.datetime.now() - rec.updated_time).seconds / 600
         )
 
     for k, v in Min_Time_Gap.items():
         paper_id, rtype = k.split('+')
         paper_id, rtype = int(paper_id), int(rtype)
-        Reduce_Fac[k] *= (1 - (1 / rtype) * math.exp(-v))
+        Reduce_Fac[paper_id] *= (1 - (1 / rtype) * math.exp(-v))
 
     for can in Cand:
         can['score'] *= Reduce_Fac[can['paper_id']]
@@ -302,6 +302,7 @@ def Rec_by_User(local_id, remote_id, wanted_num=20):
     if His_Size > 10:
         target_num = math.ceil(wanted_num * min((His_Size - 5) * 0.1, 1))
         paperrec2 = Rec_paper_by_His(remote_id)
+        paperrec2 = [x[0] for x in paperrec2]
         paperrec2 = list(set(paperrec2) - paperset)
 
     if debug:

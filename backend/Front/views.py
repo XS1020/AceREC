@@ -10,7 +10,7 @@ from Const_Var import Paper_Subset
 from Const_Var import Author_Subset
 from Const_Data_Base import History_Graph
 from random import shuffle
-from apis.utils import Local_to_Remote
+from apis.utils import Local_to_Remote, Remote_to_Local
 from .utils import Recomend_Author_by_Author
 from .utils import Recommend_paper_by_paper
 from Const_Var import Field_List
@@ -149,11 +149,12 @@ def Recomend_Author(request):
     remote_id = Local_to_Remote(local_id)
 
     if len(History_Graph.User_History.get(remote_id, [])) < 10:
-        return JsonResponse({'Rec_Authors': Random_Push_Author(5)})
+        Tx = Random_Push_Author(5)
+        Loc = Remote_to_Local(Tx)
+        return JsonResponse({'Rec_Authors': Loc[x] for x in Tx})
 
     else:
         Rec_Authors = Recomend_Author_by_Author(remote_id, 20, 20)
-        return JsonResponse({
-            'Rec_Authors': [x[0] for x in Rec_Authors]
-            if len(Rec_Authors) > 0 else Random_Push_Author(5)
-        })
+        Tx = [x[0] for x in Rec_Authors]
+        Loc = Remote_to_Local(Tx)
+        return JsonResponse({'Rec_Authors': Loc[x] for x in Tx})
