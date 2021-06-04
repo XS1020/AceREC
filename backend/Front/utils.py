@@ -27,26 +27,9 @@ def ReQuery(field, Candidate=50):
     Papers = Paper_Field.objects.filter(field_id=field)
     for lin in Papers:
         paper_info_list.append({
-            'paper_id': lin.paper_id,
-            'year': lin.year
+            'paper_id': lin.paper_id, 'year': lin.year
+            'score': lin.cite_cnt / math.sqrt(Curr_year - lin.year + 1)
         })
-
-    conn, cursor = Get_Conn_Analysis()
-    walk_leng, totlen = 5000, len(paper_info_list)
-    Cite_cnt = {}
-    for x in tqdm(range(0, totlen, walk_leng)):
-        subx = [str(t['paper_id']) for t in paper_info_list[x: x + walk_leng]]
-        cursor.execute(
-            'SELECT paper_id, citation_count from am_paper_analysis\
-            where paper_id in ({})'.format(','.join(subx))
-        )
-        for lin in cursor:
-            Cite_cnt[lin[0]] = lin[1]
-    close_conn(conn, cursor)
-    Curr_year = datetime.datetime.now().year
-    for x in paper_info_list:
-        x['score'] = Cite_cnt.get(x['paper_id'], 0) / \
-            math.sqrt(Curr_year - x['year'] + 1)
 
     paper_info_list.sort(key=lambda x: -x.get('score', 0))
     return paper_info_list[:Candidate]
@@ -317,7 +300,6 @@ def Rec_by_User(local_id, remote_id, wanted_num=20):
 
     time4 = time.time()
     print("T4:", time4 - time3)
-
 
     paper_all = list(set(paper_rec1 + paperrec2 + paperrec3))
     shuffle(paper_all)
