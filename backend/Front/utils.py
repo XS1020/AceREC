@@ -191,6 +191,8 @@ def Recommend_paper_by_paper(paper_id, wanted_num):
 def Get_top_six(remote_id):
     objs = User_Papers.objects.filter(remote_id=remote_id)
     paper_id_list = [x.paper_id for x in objs]
+    if len(paper_id_list) == 0:
+        return []
 
     conn, cursor = Get_Conn_Analysis()
     cursor.execute(
@@ -301,7 +303,7 @@ def Rec_by_User(local_id, remote_id, wanted_num=20):
         target_num = math.ceil(wanted_num * min((His_Size - 5) * 0.1, 1))
         paperrec2 = Rec_paper_by_His(remote_id)
         paperrec2 = list(set(paperrec2) - paperset)
-    
+
     if debug:
         time3 = time.time()
         print("T3:", time3 - time2)
