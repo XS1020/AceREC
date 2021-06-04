@@ -90,11 +90,13 @@ def Qry_Field(field_id):
                 rex.save()
 
         else:
-            Reclist = [lin.paper_id for lin in Rec_list]
+            Reclist = [{
+                'paper_id': lin.paper_id,
+                'score': lin.score
+            } for lin in Rec_list]
 
     Time_Desc(Reclist)
     return Reclist[:30]
-
 
 
 def Recomend_Author_by_Author(remote_id, wanted_num=20, threshold_author=50):
