@@ -1,4 +1,5 @@
 from django.db import models
+import datetime
 
 # Create your models here.
 
@@ -35,3 +36,10 @@ class Embeddings(models.Model):
 
     class Meta:
         ordering = ['paper_id']
+
+
+class Sim_Rec_Cache(models.Model):
+    paper_id = models.BigIntegerField(db_index=True)
+    rec_id = models.BigIntegerField(db_index=False)
+    Sim = models.FloatField(default=0)
+    update_time = models.DateTimeField(auto_now=True)

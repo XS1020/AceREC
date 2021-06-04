@@ -130,7 +130,7 @@ def Recomend_Author(request):
         return HttpResponseNotAllowed("Not Int local id")
 
     remote_id = Local_to_Remote(local_id)
-    
+
     if len(History_Graph.User_History.get(remote_id, [])) < 10:
         return JsonResponse({'Rec_Authors': Random_Push_Author(5)})
 
@@ -140,3 +140,4 @@ def Recomend_Author(request):
             'Rec_Authors': [x[0] for x in Rec_Authors]
             if len(Rec_Authors) > 0 else Random_Push_Author(5)
         })
+

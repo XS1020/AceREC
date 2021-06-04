@@ -1,6 +1,6 @@
 import json
 from .models import Cite_Rec_Cache
-from .models import Paper_Field
+from .models import Paper_Field, Sim_Rec_Cache
 from apis.utils import Get_Conn_Analysis, close_conn
 import datetime
 import math
@@ -12,7 +12,8 @@ from .models import Recom_Data, Embeddings
 import torch
 
 
-Q1_TIME_OUT = 10 * 60 * 60
+Q1_TIME_OUT = 5 * 60 * 60
+Q2_TIME_OUT = 10 * 60 * 60
 
 
 def ReQuery(field, Candidate=100):
@@ -100,6 +101,7 @@ def Qry_Field(field_id):
             } for lin in Rec_list]
 
     Time_Desc(Reclist)
+    Reclist.sort(key=lambda x: -x['score'])
     return Reclist[:30]
 
 
@@ -116,7 +118,7 @@ def Recomend_Author_by_Author(remote_id, wanted_num=20, threshold_author=50):
     )
 
 
-def Qry_Dist_of_Paper(paper_id, Candidate=100):
+def Qry_Sim_of_Paper(paper_id, Candidate=50):
     ocluster = Recom_Data.objects.filter(paper_id=paper_id)
     if len(ocluster) == 0:
         return []
@@ -145,7 +147,40 @@ def Qry_Dist_of_Paper(paper_id, Candidate=100):
         for i in range(1, len(Indexes)):
             Repo.append({
                 'paper_id': pos2pid[Indexes[i]],
-                'Sim': Vals[i]
+                'score': Vals[i]
             })
 
     return Repo
+
+
+def Recommend_paper_by_paper(paper_id, wanted_num=10):
+    Cache_info = Sim_Rec_Cache.objects.filter(
+        paper_id=paper_id
+    ).order_by('-Sim')
+    Flag = False
+    if len(Cache_info) < wanted_num * 3:
+        Flag = True
+    else:
+        TimeGap = datetime.datetime.now() - Cache_info[0].update_time
+        if TimeGap.days > 0 or TimeGap.seconds > Q2_TIME_OUT:
+            Flag = True
+
+    if Flag:
+        Rec_list = Qry_Sim_of_Paper(paper_id, max(50, wanted_num * 3))
+        Cache_info.delete()
+        for Rec in Rec_list:
+            Sim_Rec_Cache.objects.create(
+                paper_id=paper_id,
+                rec_id=Rec['paper_id'],
+                Sim=Rec['score']
+            )
+
+    else:
+        Rec_list = [{
+            'paper_id': x.rec_id,
+            'score': x.Sim
+        } for x in Cache_info]
+
+    Time_Desc(Rec_list)
+    Rec_list.sort(key=lambda x: -x['score'])
+    return Rec_list[:wanted_num]
