@@ -1,3 +1,4 @@
+import json
 from .models import Cite_Rec_Cache
 from .models import Paper_Field
 from apis.utils import Get_Conn_Analysis, close_conn
@@ -8,11 +9,12 @@ from .pixie_random_walks import pixie_random_walk_only_author
 from Const_Data_Base import History_Graph
 from apis.models import Record
 from .models import Recom_Data, Embeddings
+import torch
 
 
 Q1_TIME_OUT = 10 * 60 * 60
 
-import json
+
 def ReQuery(field, Candidate=100):
     paper_info_list = []
     Papers = Paper_Field.objects.filter(field_id=field)
@@ -113,19 +115,37 @@ def Recomend_Author_by_Author(remote_id, wanted_num=20, threshold_author=50):
         threshold_author=threshold_author
     )
 
-def Qry_Dist_of_Paper(paper_id):
+
+def Qry_Dist_of_Paper(paper_id, Candidate=100):
     ocluster = Recom_Data.objects.filter(paper_id=paper_id)
     if len(ocluster) == 0:
         return []
     bel = ocluster[0].belong
     cluster = Recom_Data.objects.filter(belong=bel)
-    paper_id_list, pid2pos = [x.paper_id for x in cluster], {}
+    paper_id_list = [x.paper_id for x in cluster]
+    pos2pid, pid2pos = {}, {}
 
     Embeds, Idx = [], 0
     Emb_clu = Embeddings.objects.filter(paper_id__in=paper_id_list)
     for x in Emb_clu:
         Embeds.append(json.loads(x.Embedding))
-        pid2pos[x.paper_id] = Idx
+        pid2pos[x.paper_id], pid2pos[Idx] = Idx, x.paper_id
         Idx += 1
+    if len(Embeds) == 0:
+        return []
+    device = torch.device('cuda:0' if torch.cuda.is_available else 'cpu')
+    Embeds = torch.tensor(Embeds).to(device)
+    self_Emb = Embeds[pid2pos[paper_id]]
+    Similarity = torch.sum(Embeds * self_Emb, dim=1)
+    Ans = Similarity.topk(Candidate + 1, largest=True).to('cpu')
+    Indexes = Ans.indices.to('cpu').detach().tolist()
+    Vals = Ans.values.to('cpu').detach().tolist()
+    Repo = []
+    if len(Indexes) > 1:
+        for i in range(1, len(Indexes)):
+            Repo.append({
+                'paper_id': pos2pid[Indexes[i]],
+                'Sim': Vals[i]
+            })
 
-
+    return Repo
