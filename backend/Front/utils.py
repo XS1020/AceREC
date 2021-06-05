@@ -1,7 +1,7 @@
 import json
 from .models import Cite_Rec_Cache
 from .models import Paper_Field, Sim_Rec_Cache
-from apis.utils import Get_Conn_Analysis, close_conn
+from apis.utils import Get_Conn_Analysis, close_conn, Get_Conn_Paper
 import datetime
 import math
 from random import shuffle
@@ -45,7 +45,7 @@ def Time_Desc(Cand):
     paper_ids = set([lin['paper_id'] for lin in Cand])
     Last_Date = datetime.datetime.now() - datetime.timedelta(seconds=6000)
     recs = Record.objects.filter(
-        paper_id__in=paper_ids,
+        paper_id__in=paper_ids, rtype=2,
         updated_time__gte=Last_Date
     )
     Min_Time_Gap, Reduce_Fac = {}, {x: 1 for x in paper_ids}
@@ -106,6 +106,7 @@ def Qry_Sim_of_Paper(paper_id, Candidate=50):
     pos2pid, pid2pos = {}, {}
 
     Embeds = Cheat_Embeddings.get(bel, [])
+    print(bel, len(Embeds))
     if len(Embeds) == 0:
         return []
 
@@ -165,7 +166,7 @@ def Recommend_paper_by_Sim(paper_id, wanted_num=10):
             'paper_id': x.rec_id,
             'score': x.Sim
         } for x in Cache_info]
-
+    # print(Rec_list[:wanted_num])
     Time_Desc(Rec_list)
     Rec_list.sort(key=lambda x: -x['score'])
     return Rec_list[:wanted_num]
@@ -196,11 +197,11 @@ def Get_top_six(remote_id):
     if len(paper_id_list) == 0:
         return []
 
-    conn, cursor = Get_Conn_Analysis()
+    conn, cursor = Get_Conn_Paper()
     cursor.execute(
-        'SELECT paper_id, citation_count from\
-        am_paper_analysis where paper_id in ({})\
-        order by citation_count desc'.format(
+        'SELECT paper_id, year from\
+        am_paper where paper_id in ({})\
+        order by year desc'.format(
             ','.join(str(x) for x in paper_id_list)
         )
     )
@@ -210,11 +211,11 @@ def Get_top_six(remote_id):
         if len(topsix) == 6:
             break
     close_conn(conn, cursor)
-
+    # print(topsix)
     return topsix
 
 
-def Recommend_paper_by_Achieve(remote_id, start=64):
+def Recommend_paper_by_Achieve(remote_id, start=32):
     topsix = Get_top_six(remote_id)
     Candidate = []
     for x in topsix:
@@ -274,7 +275,7 @@ def Rec_paper_by_His(remote_id):
 
 
 def Rec_by_User(local_id, remote_id, wanted_num=20):
-    debug = False
+    debug = True
     History_Graph.Update_Info()
 
     if debug:
@@ -292,15 +293,21 @@ def Rec_by_User(local_id, remote_id, wanted_num=20):
     paper_rec1 = Recommend_paper_by_Achieve(
         remote_id
     ) if remote_id >= 0 else []
-    paper_rec1 = list(set(paper_rec1) - paperset)[:target_num]
+    paper_all = []
+    for x in paper_rec1:
+        if x not in paperset:
+            paper_all.append(x)
+        if len(paper_all) == target_num:
+            break
 
     if debug:
+        print("Here", paper_rec1)
         time2 = time.time()
         print("T2:", time2 - time1)
 
     His_Size = len(History_Graph.User_History.get(remote_id, []))
     paperrec2 = []
-    wanted_num -= len(paper_rec1)
+    wanted_num -= len(paper_all)
 
     if debug:
         print(His_Size)
@@ -309,21 +316,24 @@ def Rec_by_User(local_id, remote_id, wanted_num=20):
         target_num = math.ceil(wanted_num * min((His_Size - 5) * 0.1, 1))
         paperrec2 = Rec_paper_by_His(remote_id)
         paperrec2 = [x[0] for x in paperrec2]
-        paperrec2 = list(set(paperrec2) - paperset)
+        for x in paperrec2:
+            if x not in paperset and x not in paper_all:
+                paper_all.append(x)
 
     if debug:
         time3 = time.time()
         print("T3:", time3 - time2)
 
-    wanted_num -= len(paperrec2)
+    wanted_num = owanted - len(paper_all)
     wanted_num = max(wanted_num, 1)
     paperrec3 = recomemd_paper_by_interest(local_id, owanted)
-    paperrec3 = list(set(paperrec3) - paperset)
+    for x in paperrec3:
+        if x not in paperset and x not in paper_all:
+            paper_all.append(x)
 
     if debug:
         time4 = time.time()
         print("T4:", time4 - time3)
 
-    paper_all = list(set(paper_rec1 + paperrec2 + paperrec3))
     shuffle(paper_all)
     return paper_all[:owanted]
