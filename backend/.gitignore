@@ -4,3 +4,8 @@ backend/__pycache__/*
 Front/__pycache__/*
 User/__pycache__/*
 Static/avatar/*png
+Embeddings.pickle
+Paper_Id_Pos.pickle
+Paper_Pos_Id.pickle
+Rev_History.pickle
+User_History.pickle

@@ -22,7 +22,7 @@ from .utils import Get_Paper_Abstract, Get_Org_Url, Get_Paper_Doi
 from .utils import Get_Paper_Keyword, Get_Paper_Doi, Get_Org_Url
 from .utils import Remote_to_Local, Local_to_Remote
 from .utils import Get_Person_Cite, Get_Related_Authors
-from .utils import Get_Person_Cite_Count
+from .utils import Get_Person_Cite_Count, Get_Person_Record
 from User.views import LOGIN_TIME_OUT
 # Create your views here.
 
@@ -181,16 +181,14 @@ def Add_View_recoed(request):
         return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
 
     remote_id = Local_to_Remote(local_id)
-    if remote_id < 0:
+    if remote_id < -1:
         return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
 
     Token = request.META.get('HTTP_TOKEN', "")
 
-    
     Obj = User_Token.objects.filter(local_id=local_id)
     if len(Obj) == 0 or Token != Obj[0].token:
         return HttpResponse('Unauthorlized', status=401)
-
 
     if time.time() - Obj[0].update_time > LOGIN_TIME_OUT:
         return HttpResponse('Unauthorlized', status=401)
@@ -229,7 +227,7 @@ def Add_Click_record(request):
         return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
 
     remote_id = Local_to_Remote(local_id)
-    if remote_id < 0:
+    if remote_id < -1:
         return JsonResponse({"stat": 0, 'Reason': "No Such Person"})
 
     Token = request.META.get('HTTP_TOKEN', "")
@@ -448,3 +446,35 @@ def Author_Cite_Count(request):
 def ctoken(request):
     token = get_token(request=request)
     return JsonResponse({'token': token})
+
+
+def Get_User_Record(request):
+    Data = request.GET
+    if not Data or 'local_id' not in Data:
+        return HttpResponseBadRequest("No localid found")
+    try:
+        local_id = int(Data['local_id'])
+    except ValueError as e:
+        return HttpResponseNotAllowed("Not Int Id")
+
+    Records = Get_Person_Record(local_id)
+    Pids = set()
+    for lin in Records:
+        lin['time'] = lin['time'].strftime("%Y-%m-%d %H:%M:%S")
+        Pids.add(lin['paperid'])
+    if len(Pids) == 0:
+        return JsonResponse({'record': []})
+
+    conn, cursor = Get_Conn_Paper()
+    Pid2title = {}
+    cursor.execute(
+        'SELECT title, paper_id from am_paper\
+        where paper_id in ({})'.format(','.join(str(x) for x in Pids))
+    )
+    for lin in cursor:
+        Pid2title[lin[1]] = lin[0]
+    close_conn(conn, cursor)
+    for lin in Records:
+        lin['title'] = Pid2title[lin['paperid']]
+
+    return JsonResponse({'record': Records[:20]})

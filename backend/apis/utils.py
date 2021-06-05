@@ -4,6 +4,7 @@ import datetime
 import json
 from User.models import User_Info
 from collections import Iterable
+from .models import Record
 
 
 def Get_Conn_Paper():
@@ -258,25 +259,25 @@ def Get_Paper_Keyword(
 
 def Remote_to_Local(remote_ids):
     if isinstance(remote_ids, Iterable):
-        Ans = {x: -1 for x in remote_ids}
+        Ans = {x: -5 for x in remote_ids}
         auser = User_Info.objects.filter(remote_id__in=list(remote_ids))
         for lin in auser:
             Ans[lin.remote_id] = lin.local_id
     else:
         auser = User_Info.objects.filter(remote_id=remote_ids)
-        Ans = -1 if len(auser) < 1 else auser[0].local_id
+        Ans = -5 if len(auser) < 1 else auser[0].local_id
     return Ans
 
 
 def Local_to_Remote(Local_ids):
     if isinstance(Local_ids, Iterable):
-        Ans = {x: -1 for x in Local_ids}
+        Ans = {x: -5 for x in Local_ids}
         auser = User_Info.objects.filter(local_id__in=list(Local_ids))
         for lin in auser:
             Ans[lin.local_id] = lin.remote_id
     else:
         auser = User_Info.objects.filter(local_id=Local_ids)
-        Ans = -1 if len(auser) < 1 else auser[0].remote_id
+        Ans = -5 if len(auser) < 1 else auser[0].remote_id
     return Ans
 
 
@@ -351,3 +352,25 @@ def Get_Person_Cite_Count(personid):
     Ans = cursor.fetchone()
     close_conn(conn, cursor)
     return Ans
+
+
+def Get_Person_Record(local_id, period=30):
+    TimeGap = datetime.timedelta(days=period)
+    Last_Date = datetime.datetime.now() - TimeGap
+
+    Recs = Record.objects.filter(
+        updated_time__gte=Last_Date,
+        local_id=local_id, rtype=2
+    )
+    Datas = {}
+    for rec in Recs:
+        utime = rec.updated_time
+        tkey = '{} + {}'.format(rec.paper_id, utime.date())
+        Datas[tkey] = {
+            'paperid': rec.paper_id,
+            'time': utime
+        }
+
+    Vs = list(Datas.values())
+    Vs.sort(key=lambda x: x['time'], reverse=True)
+    return Vs

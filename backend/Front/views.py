@@ -7,15 +7,39 @@ import json
 import pysolr
 from apis.utils import Get_Paper_Ref
 from Const_Var import Paper_Subset
+from Const_Var import Author_Subset
+from Const_Data_Base import History_Graph
+from random import shuffle
+from apis.utils import Local_to_Remote, Remote_to_Local
+from .utils import Recomend_Author_by_Author
+from .utils import Recommend_paper_by_paper
+from Const_Var import Field_List
+from .utils import Qry_Field, Rec_by_User
 
 
 def MainPage(request):
-    Recom = [
-        94747717, 172379530, 216802878, 223658030, 228111136,
-        277256906, 448852786, 473532210, 111870135, 379921807,
-        94747717, 172379530, 216802878, 223658030, 228111136,
-        277256906, 448852786, 473532210, 111870135, 379921807
-    ]
+
+    Data, Flag = request.GET, False
+    if not Data or 'local_id' not in Data:
+        Flag = True
+    else:
+        try:
+            local_id = int(Data['local_id'])
+        except ValueError as e:
+            return HttpResponseNotAllowed("Not Int Id")
+
+        remote_id = Local_to_Remote(local_id)
+        if remote_id < -1:
+            Flag = True
+
+    if Flag:
+        shuffle(Field_List)
+        Fs = Field_List[:2]
+        Ans = Qry_Field(Fs[0], 10) + Qry_Field(Fs[1], 10)
+        Recom = list(set(x['paper_id'] for x in Ans))
+    else:
+        Recom = Rec_by_User(local_id, remote_id)
+
     dresponse = {
         'Rec': Recom
     }
@@ -80,6 +104,12 @@ def Search(request):
     })
 
 
+def Random_Push_Author(num=5):
+    As = list(Author_Subset)
+    shuffle(As)
+    return As[:num]
+
+
 def Recomend_and_cite_Paper_Page(request):
     Data = request.GET
     if not Data or 'paperid' not in Data:
@@ -90,9 +120,7 @@ def Recomend_and_cite_Paper_Page(request):
     except ValueError as e:
         return HttpResponseNotAllowed("Not Int paperid")
 
-    Recom = [
-        94747717, 172379530, 216802878, 223658030, 228111136
-    ]
+    Recom = Recommend_paper_by_paper(paper_id=paperid, wanted_num=10)
 
     Ans = {'Rec': Recom, 'Ref': []}
     Refs = Get_Paper_Ref(paperid)
@@ -102,3 +130,31 @@ def Recomend_and_cite_Paper_Page(request):
     Ans['Clickable'] = [1 if x in Paper_Subset else 0 for x in Ans['Ref']]
 
     return JsonResponse(Ans)
+
+
+def Recomend_Author(request):
+    Data = request.GET
+    if not Data:
+        return HttpResponseBadRequest("No Data Found")
+
+    local_id = Data.get('local_id', None)
+    if local_id is None:
+        return JsonResponse({"Rec_Authors": Random_Push_Author(5)})
+
+    try:
+        local_id = int(Data['local_id'])
+    except ValueError as e:
+        return HttpResponseNotAllowed("Not Int local id")
+
+    remote_id = Local_to_Remote(local_id)
+
+    if len(History_Graph.User_History.get(remote_id, [])) < 10:
+        Tx = Random_Push_Author(5)
+        Loc = Remote_to_Local(Tx)
+        return JsonResponse({'Rec_Authors': [Loc[x] for x in Tx][:5]})
+
+    else:
+        Rec_Authors = Recomend_Author_by_Author(remote_id, 20, 20)
+        Tx = [x[0] for x in Rec_Authors]
+        Loc = Remote_to_Local(Tx)
+        return JsonResponse({'Rec_Authors': [Loc[x] for x in Tx][:5]})
