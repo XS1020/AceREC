@@ -30,7 +30,7 @@ def generate_token(name, t):
 
 
 def user_login(request):
-    req = request.GET
+    req = request.POST
 
     if not req:
         return HttpResponseBadRequest('No Information!')
@@ -69,7 +69,7 @@ def user_login(request):
 
 
 def user_signup(request):
-    req = request.GET
+    req = request.POST
 
     if not req:
         return HttpResponseBadRequest('No Information!')
