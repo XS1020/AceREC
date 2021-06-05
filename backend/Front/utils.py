@@ -182,6 +182,7 @@ def Recommend_paper_by_paper(paper_id, wanted_num):
             pps = [x.paper_id for x in objs]
             shuffle(pps)
             Exact_part = pps[: wanted_num - len(Sim_rec)]
+            Exact_part = list(set(Exact_part) - {paper_id})
 
     Ready = set([x['paper_id'] for x in Sim_rec] + Exact_part)
     if paper_id in Ready:
