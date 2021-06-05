@@ -28,7 +28,7 @@ def generate_token(name, t):
     token = hashlib.md5(input.encode('utf-8')).hexdigest()
     return token
 
-
+@csrf_exempt
 def user_login(request):
     req = request.POST
 
@@ -67,7 +67,7 @@ def user_login(request):
         return HttpResponse('User name or password wrong!', status=401)
     return JsonResponse(info)
 
-
+@csrf_exempt
 def user_signup(request):
     req = request.POST
 
