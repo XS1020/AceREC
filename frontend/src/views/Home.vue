@@ -5,25 +5,11 @@
       <div class="sidebar-content">
         <div class="featured-items">
           <h2> Recommended Authors </h2>
-          <AuthorInfo/>
-          <AuthorInfo/>
-        </div>
-        <div class="featured-items">
-          <h2> Paper of the Year </h2>
-          <PaperInfo/>
+          <AuthorInfo v-for="author in recAuthors" :author-id="author"/>
         </div>
       </div>
       <div class="main-content">
         <nav class="tab-menu" :style="{'--tag-position': translateTag}">
-<!--          <router-link to="/" tag="span" active-class="active">-->
-<!--            All Genres-->
-<!--          </router-link>-->
-<!--          <router-link to="/home/test1" tag="span" active-class="active" @click.native="setTagPosition(1)">-->
-<!--            All Genres-->
-<!--          </router-link>-->
-<!--          <router-link to="/test2" tag="span" active-class="active">-->
-<!--            All Genres-->
-<!--          </router-link>-->
           <router-link v-for="(link, index) in links"
                        :to="link.to"
                        tag="span" active-class="active">
@@ -42,6 +28,16 @@
 import axios from "axios";
 export default {
   name: 'Home',
+  created() {
+    this.$http({
+      url: "/api/recauthor",
+      params: {
+        local_id: this.$store.state.localId
+      }
+    }).then(res => {
+      this.recAuthors = JSON.parse(JSON.stringify(res.data.Rec_Authors))
+    })
+  },
   components: {
     AuthorInfo: () => import("@/components/Home/AuthorInfo"),
     Carousel: () =>  import("@/components/Home/Carousel"),
@@ -49,18 +45,11 @@ export default {
   },
   data () {
     return {
+      recAuthors: [],
       links: [
         {
           to: "/home/index",
           desc: "All Genres"
-        },
-        {
-          to: "/home/test1",
-          desc: "Test1"
-        },
-        {
-          to: "/home/test2",
-          desc: "Test2"
         }
       ],
     }

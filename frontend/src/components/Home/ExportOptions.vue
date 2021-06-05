@@ -14,11 +14,12 @@
 <script>
 export default {
   name: "ExportOptions",
+  props: ['id'],
   created() {
     this.$http({
       url: "/api/bib",
       params: {
-        paperid: 94747717
+        paperid: this.id
       }
     }).then(res => this.bib = res.data.bib)
   },

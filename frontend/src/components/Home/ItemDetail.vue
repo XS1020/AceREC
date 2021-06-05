@@ -9,7 +9,7 @@
     </div>
     <div class="author-info-container">
       <h2>  {{name}} </h2>
-      <span> {{institution}} </span>
+      <span> {{affiliation}} </span>
       <p> {{desc}} </p>
       <span><i class="fa fa-location-arrow"/> {{location}} </span>
     </div>
@@ -25,18 +25,15 @@ export default {
   name: "AuthorDetail",
   components: {LoadingCpn},
   beforeMount() {
-    setTimeout(() => {this.finishedLoading = true}, 1000)
+    setTimeout(() => {this.finishedLoading = true}, 100)
   },
-  props: ['detailType'],
+  props: ['detailType', 'name', 'affiliation', 'avatar', 'desc'],
   data () {
     return {
       finishedLoading: false,
-      name: "Hori Miona",
       title: "Professor",
       institution: "Nogizaka 46",
-      desc: "CS undergraduate, KDE user, Vim\\NeoVim, i3, Archlinux beginner",
-      avatar: require("../../assets/avatar.webp"),
-      location: "Tokyo, Japan",
+      location: "China Mainland",
     }
 
   }
@@ -84,6 +81,7 @@ export default {
   height: 80px;
   border-radius: 50%;
   margin-top: 20px;
+  object-fit: contain;
 }
 .avatar-container > img.paper-img {
   width: 80px;

@@ -2,18 +2,21 @@
   <div id="app">
     <nav-bar></nav-bar>
     <div id="main-wrap">
-      <router-view @showExportOptions="exportOptions = true"/>
+      <router-view @showExportOptions="showExportOptions"/>
     </div>
     <div class="pop-up-window" v-if="exportOptions">
-      <ExportOptions  @closePopup="exportOptions = false"/>
+      <ExportOptions  @closePopup="exportOptions = false" :id="paperId"/>
     </div>
+    <BrowseHistory v-if="this.$store.state.login"/>
   </div>
 </template>
 <script>
 import NavBar from "./components/NavBar";
+import BrowseHistory from "@/components/BrowseHistory";
 export default {
   name: "App",
   components: {
+    BrowseHistory,
     NavBar,
     ExportOptions: () => import("./components/Home/ExportOptions")
   },
@@ -21,10 +24,15 @@ export default {
   },
   data () {
     return {
-      exportOptions: false
+      exportOptions: false,
+      paperId: ""
     }
   },
   methods: {
+    showExportOptions(id) {
+      this.paperId = id
+      this.exportOptions = true
+    }
   }
 }
 </script>

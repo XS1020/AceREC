@@ -12,10 +12,9 @@ export default {
 
 <style scoped>
 .loading-pattern {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center !important;
+  align-items: center;
 }
 .loading-pattern > i {
   font-size: 40px;

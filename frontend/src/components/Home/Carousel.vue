@@ -42,13 +42,28 @@ export default {
               "05/26 - CVPR'21 is accepting applicants for DEI registration waivers\n",
               "5/14 - The 24 hour Main Conference, Workshop and Tutorial schedules have been posted",
               "03/25 - Media information is available"],
-          time: "June 19th to June 25th"
+          time: "June 19th to June 25th",
+          originURL: "http://cvpr2021.thecvf.com/"
         },
         {
-          text: "200",
+          text: "IJCAI 2021",
+          imgurl: require('../../assets/ijicai.png'),
+          desc: ["04/30 Paper notification",
+          "03/24~28 Author response period",
+          "02/07 Summary reject notification",
+          "01/20 Full paper submission deadline",
+          "01/16 Author information deadline"],
+          time: "August 21st to August 26th",
+          originURL: "https://ijcai-21.org/"
         },
         {
-          text: "300",
+          text: "ICCV 2021",
+          imgurl: require('../../assets/iccv.png'),
+          desc: ["08/17 Camera Ready Deadline",
+          "07/22 Final Decision to Authors",
+          "06/17 Rebuttals Due",
+          "03/24 Supplementary Materials Deadline"],
+          originURL: "http://iccv2021.thecvf.com/home"
         }
       ]
     }

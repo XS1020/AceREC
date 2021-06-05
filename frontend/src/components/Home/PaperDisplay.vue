@@ -4,7 +4,8 @@
         <loading-cpn v-if="!loaded"/>
         <error-cpn v-if="loaded===2"/>
         <div class="paper-display-main clearfix" v-if="loaded===1">
-          <img :src="imgSrc" alt="">
+          <ImageNotLoaded v-if="imgSrc.length === 0"/>
+          <img :src="imgSrc" alt="" v-else>
           <div>
             <h2 class="paper-display-title">{{title}}</h2>
             <span> by {{author}} </span>
@@ -30,9 +31,10 @@
 <script>
 import LoadingCpn from "@/components/LoadingCpn";
 import ErrorCpn from "@/components/ErrorCpn";
+import ImageNotLoaded from "@/components/ImageNotLoaded";
 export default {
   name: "PaperDisplay",
-  components: {ErrorCpn, LoadingCpn},
+  components: {ImageNotLoaded, ErrorCpn, LoadingCpn},
   props: ['srcPath'],
   mounted () {
     this.$http({
@@ -43,7 +45,7 @@ export default {
       this.title = data.title
       this.desc = data.abstract
       this.author = data.author_name_list[0]
-      this.imgSrc = data.imgurl === ""? require('../../assets/1904.09730v1.png'): data.imgurl
+      this.imgSrc = data.imgurl
       this.loaded = 1
       this.cited = data.citation_count
     }).catch(error => {
@@ -91,9 +93,10 @@ export default {
 .paper-display-bottom {
   padding: 0;
 }
-.paper-display-main > img {
+.paper-display-main > img, .image-not-loaded{
   box-shadow: 0 5px 25px rgba(0,0,0,0.2);
-  width: 40%;
+  width: 40% !important;
+  min-height: 248px;
   transform: translate(7%, -15%);
   float: left;
 }

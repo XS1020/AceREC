@@ -14,7 +14,7 @@
       <span class="desc" v-for="news in data.desc">
         {{news}}
       </span>
-      <button class="see-paper-btn">See This Paper</button>
+      <button class="see-paper-btn"><a :href="data.originURL" target="_blank"> See This Conference </a></button>
     </div>
   </div>
 </template>
@@ -31,6 +31,11 @@ export default {
       author: "Nishino Nanase",
       title: "BIG MAGIC: Creative Living",
       coverSrc: require("../../assets/cover.jpg")
+    }
+  },
+  methods: {
+    jumpToSite () {
+      this.$router.push(this.data.originURL)
     }
   }
 }
@@ -95,6 +100,9 @@ export default {
   line-height: 20px;
   margin-top: 30px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+}
+.see-paper-btn a {
+  text-decoration: none;
 }
 .billboard-cover {
   width: 80%;

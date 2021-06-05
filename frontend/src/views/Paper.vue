@@ -4,7 +4,7 @@
       <div class="paper-main-info">
         <div class="left-bar">
           <h2> {{title}} </h2>
-          <span> From {{source}} </span>
+          <span> From <a :href="source" target="_blank">{{source}}</a> </span>
           <div class="basic-info-container">
             <div> <i class="fa fa-user-circle-o"/> Authors:
               <strong v-for="(author, index) in authors" @click="jumpToUser(author.local_id, author.clickable)"
@@ -21,7 +21,7 @@
           <button @click="showExportsOptions"> Cite Source <i class="fa fa-chevron-right"/> </button>
         </div>
         <ImageNotLoaded class="right-bar" v-if="!imgurl.length"/>
-        <img src="../assets/1904.09730v1.png" alt="" class="right-bar" v-else>
+        <img :src="imgurl" alt="" class="right-bar" v-else>
       </div>
       <div class="paper-extra-info">
         <div class="left-bar">
@@ -39,7 +39,7 @@
             <h2> Related Papers </h2>
             <ViewOptions
                 :options="[{text: 'Reference', to: '/paper/' +this.paperId+'/cited'},
-                {text: 'Recommend', to: '/paper/' + this.paperId +'/recommend'}]"/>
+                {text: 'Recommend', to: '/paper/' + this.paperId +'/recommend'}]" :key="this.paperId"/>
             <keep-alive>
               <router-view :related-papers="relatedPapers" :genre="genre" :key="genre"></router-view>
             </keep-alive>
@@ -63,6 +63,7 @@ export default {
     if (to.params.id !== from.params.id) {
       this.renderData()
       this.renderSvg()
+      document.body.scrollIntoView()
     }
   },
   created() {
@@ -70,6 +71,7 @@ export default {
   },
   mounted() {
     this.renderSvg()
+    document.body.scrollIntoView()
   },
   data () {
     return {
@@ -89,7 +91,7 @@ export default {
   },
   methods: {
     showExportsOptions () {
-      this.$emit('showExportOptions')
+      this.$emit('showExportOptions', this.paperId)
     },
 
     mountCitedTrend () {

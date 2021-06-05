@@ -12,7 +12,10 @@ export default {
   components: {PaperDisplay},
   created () {
     this.$http({
-      url: "/api/mainpage"
+      url: "/api/mainpage",
+      params: {
+        local_id: this.$store.state.localId
+      }
     }).then(res => {
       const jsRes = res.data
       this.papers = jsRes.Rec

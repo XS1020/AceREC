@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div @click="jumpToIndex">
     text
     <strong>Fuck</strong>
   </div>
@@ -7,7 +7,12 @@
 
 <script>
 export default {
-  name: "NavBarLogo"
+  name: "NavBarLogo",
+  methods: {
+    jumpToIndex () {
+      this.$router.push('/')
+    }
+  }
 }
 </script>
 

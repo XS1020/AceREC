@@ -3,6 +3,7 @@
     <CitedPaperItem v-for="(ref, index) in relatedPapers.Ref"
                     :paperInfo="{id: ref, click: relatedPapers.Clickable[index]}"
                     :key="ref"/>
+    <span class="no-result" v-if="relatedPapers.Ref.length ===0"> No result </span>
   </div>
   <div class="cited-paper-container" v-else>
     <CitedPaperItem v-for="(ref, index) in relatedPapers.Rec"
@@ -30,6 +31,7 @@ export default {
   padding: 10px;
   flex-direction: column;
   justify-content: flex-start;
+  position: relative;
   & > div {
     width: 100%;
     margin: 5px;
@@ -91,5 +93,13 @@ export default {
     }
     .label-list()
   }
+}
+.no-result {
+  font-size: 18px;
+  font-weight: 600;
+  position: absolute;
+  display: block;
+  top: 100px;
+  left: 50%;
 }
 </style>
