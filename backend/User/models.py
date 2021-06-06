@@ -8,7 +8,7 @@ from django.db import models
 
 class User_Info(models.Model):
     local_id = models.IntegerField(primary_key=True)
-    remote_id = models.BigIntegerField(unique=True, default=-1)
+    remote_id = models.BigIntegerField(db_index=True, default=-1)
     name = models.CharField(max_length=30, db_index=True)
     user_name = models.CharField(max_length=30, unique=True)
     affiliation = models.CharField(max_length=50)
