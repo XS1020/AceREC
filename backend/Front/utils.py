@@ -106,7 +106,7 @@ def Qry_Sim_of_Paper(paper_id, Candidate=50):
     pos2pid, pid2pos = {}, {}
 
     Embeds = Cheat_Embeddings.get(bel, [])
-    print(bel, len(Embeds))
+    # print(bel, len(Embeds))
     if len(Embeds) == 0:
         return []
 
@@ -264,6 +264,7 @@ def Recomend_Author_by_Author(remote_id, wanted_num=20, threshold_author=50):
 
 
 def Rec_paper_by_His(remote_id):
+    History_Graph.Update_Info()
     cache_user_candidates = dict()
     cache_paper_candidates = dict()
     current_Date = datetime.date.today()
@@ -275,7 +276,7 @@ def Rec_paper_by_His(remote_id):
 
 
 def Rec_by_User(local_id, remote_id, wanted_num=20):
-    debug = True
+    debug = False
     History_Graph.Update_Info()
 
     if debug:
@@ -335,5 +336,5 @@ def Rec_by_User(local_id, remote_id, wanted_num=20):
         time4 = time.time()
         print("T4:", time4 - time3)
 
-    shuffle(paper_all)
+    # shuffle(paper_all)
     return paper_all[:owanted]
