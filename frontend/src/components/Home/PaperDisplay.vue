@@ -58,7 +58,6 @@ export default {
       imgSrc: "",
       title: "Act like it",
       author: "Lucy Parker",
-      stars: 4,
       loaded: 0,
       cited: 0,
       desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non odio ac sapien maximus malesuada non a tellus. Integer et tempor orci, vel mollis urna"
@@ -67,6 +66,16 @@ export default {
   methods: {
     jumpToDetail (paperId) {
       this.$router.push("/paper/" + paperId)
+    }
+  },
+  computed: {
+    stars () {
+      if (this.cited >= 1000) return 5
+      if (this.cited >= 500) return 4
+      if (this.cited >= 200) return 3
+      if (this.cited >= 100) return 2
+      if (this.cited > 0) return 1
+      return 0
     }
   }
 }

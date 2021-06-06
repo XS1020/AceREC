@@ -10,7 +10,8 @@
         </div>
         <div class="data-form">
           <span class="hint"> Your Password </span>
-          <input type="password" placeholder="Your Password" v-model="password" :class="{'error': passwordIncorrect}">
+          <input type="password" placeholder="Your Password" v-model="password" :class="{'error': passwordIncorrect}"
+          @keyup.enter="signIn">
           <i class="error-message" v-if="passwordIncorrect"> Password Incorrect </i>
         </div>
         <div class="agreement">
@@ -18,7 +19,7 @@
           <label for="agree-checkbox"><i class="fa fa-check"/> </label>
           <p class="desc"> Remember me </p>
         </div>
-        <button class="confirm-button" @click="signIn"> {{submitting? 'Sign In' : 'Loading'}} </button>
+        <button class="confirm-button" @click="signIn"> {{submitting? 'Loading' : 'Sign In'}} </button>
       </div>
       <div class="right-box">
         <img src="../assets/infinite-loop-01.jpg" alt="">
@@ -41,12 +42,13 @@ export default {
   methods: {
      signIn () {
        this.submitting = true
+       const signInData = new URLSearchParams()
+       signInData.append('user_name', this.userName)
+       signInData.append('password', this.password)
        this.$http({
+         method: "post",
          url: "/user//user_login",
-         params: {
-           user_name: this.userName,
-           password: this.password
-         }
+         data: signInData
        }).then(res => {
          const data = res.data
          this.$store.commit('changeLogin',

@@ -63,13 +63,14 @@ export default {
         alert('You should agree to user term')
         return
       }
+      const postData = new URLSearchParams()
+      postData.append('user_name', this.userName)
+      postData.append('password', this.password)
+      postData.append('affiliation', this.affiliation)
       this.$http({
+        method: "post",
         url: "/user/user_signup",
-        params: {
-          user_name: this.userName,
-          password: this.password,
-          affiliation: this.affiliation
-        }
+        data: postData
       }).then(res => {
         const data = res.data
         this.$store.commit('changeLogin',

@@ -9,9 +9,9 @@
         <i class="fa fa-sign-out"/>
         Sign Out
       </li>
-      <li>
+      <li @click="jumpToUser">
         <i class="fa fa-github"/>
-        Github Repository
+        My Profile
       </li>
     </ul>
   </div>
@@ -28,6 +28,10 @@ export default {
     },
     jumpToSettings () {
       this.$router.push("/settings")
+    },
+    jumpToUser () {
+      if (this.$store.state.remoteId !== -1)
+        this.$router.push('/profile/' + this.$store.state.localId)
     }
   }
 }

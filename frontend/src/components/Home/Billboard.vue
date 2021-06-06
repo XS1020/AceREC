@@ -51,6 +51,7 @@ export default {
   float: left;
   padding-top: 20px;
 }
+
 .billboard-title {
   font-size: 22px;
   font-weight: 600;
@@ -106,6 +107,7 @@ export default {
 }
 .billboard-cover {
   width: 80%;
+  height: 432px;
   transform: translate3d(50px, 50px, 100px);
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
 }

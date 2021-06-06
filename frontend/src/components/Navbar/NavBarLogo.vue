@@ -1,7 +1,7 @@
 <template>
   <div @click="jumpToIndex">
-    text
-    <strong>Fuck</strong>
+    Ace
+    <strong> REC </strong>
   </div>
 </template>
 
@@ -17,5 +17,10 @@ export default {
 </script>
 
 <style scoped>
-
+* {
+  font-size: 18px;
+}
+strong {
+  color: rebeccapurple;
+}
 </style>

@@ -7,10 +7,11 @@
           <span> From <a :href="source" target="_blank">{{source}}</a> </span>
           <div class="basic-info-container">
             <div> <i class="fa fa-user-circle-o"/> Authors:
-              <strong v-for="(author, index) in authors" @click="jumpToUser(author.local_id, author.clickable)"
+              <strong v-for="(author, index) in authors.slice(0, 5)" @click="jumpToUser(author.local_id, author.clickable)"
               :class="{'clickable': author.clickable}">
                 {{index < authors.length - 1? author.name + ", ":author.name}}
               </strong>
+              <strong v-if="authors.length > 5"> ... </strong>
             </div>
             <div> <i class="fa fa-code"/> <strong> {{doi}} </strong></div>
             <div> <i class="fa fa-clock-o"/>Year: <strong>{{year}}</strong> </div>
